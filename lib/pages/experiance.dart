@@ -14,8 +14,10 @@ class _ExperienceState extends State<Experience> {
   final TextEditingController companyController = TextEditingController();
   final TextEditingController positionController = TextEditingController();
   final TextEditingController yearController = TextEditingController();
+  final TextEditingController endYearController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   String? selectedMonth;
+  String? endSelectedMonth;
 
   final List<String> month = [
     'January',
@@ -37,6 +39,7 @@ class _ExperienceState extends State<Experience> {
     companyController.dispose();
     positionController.dispose();
     yearController.dispose();
+    endYearController.dispose();
     descriptionController.dispose();
     super.dispose();
   }
@@ -114,78 +117,146 @@ class _ExperienceState extends State<Experience> {
                           AppTextField(
                             label: "Company Name",
                             controller: companyController,
-                            prefixIcon: const Icon(Icons.business, color: Colors.white70),
                           ),
                           const SizedBox(height: 12),
                           AppTextField(
                             label: "Position/Role",
                             controller: positionController,
-                            prefixIcon: const Icon(Icons.work, color: Colors.white70),
                           ),
                           const SizedBox(height: 12),
-                          Row(
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: AppTextField(
-                                  label: "Year",
-                                  controller: yearController,
-                                  keyboardType: TextInputType.number,
-                                  prefixIcon: const Icon(Icons.calendar_today, color: Colors.white70),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: Colors.white.withOpacity(0.3),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: AppTextField(
+                                      label: "From Year",
+                                      controller: yearController,
+                                      keyboardType: TextInputType.number,
                                     ),
                                   ),
-                                  child: DropdownButtonHideUnderline(
-                                    child: DropdownButton2<String>(
-                                      isExpanded: true,
-                                      dropdownStyleData: DropdownStyleData(
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(14),
-                                          gradient: const LinearGradient(
-                                            colors: [
-                                              Color.fromARGB(255, 152, 146, 244),
-                                              Color(0xffe4d8fd),
-                                              Color(0xff9b8fff),
-                                            ],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                          color: Colors.white.withOpacity(0.3),
                                         ),
                                       ),
-                                      hint: Text(
-                                        'Select Month',
-                                        style: TextStyle(
-                                          color: Colors.white.withOpacity(0.8),
-                                        ),
-                                      ),
-                                      value: selectedMonth,
-                                      items: month.map((m) {
-                                        return DropdownMenuItem<String>(
-                                          value: m,
-                                          child: Text(
-                                            m,
-                                            style: const TextStyle(
-                                              color: Colors.white,
+                                      child: DropdownButtonHideUnderline(
+                                        child: DropdownButton2<String>(
+                                          isExpanded: true,
+                                          dropdownStyleData: DropdownStyleData(
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(14),
+                                              gradient: const LinearGradient(
+                                                colors: [
+                                                  Color.fromARGB(255, 152, 146, 244),
+                                                  Color(0xffe4d8fd),
+                                                  Color(0xff9b8fff),
+                                                ],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
                                             ),
                                           ),
-                                        );
-                                      }).toList(),
-                                      onChanged: (val) =>
-                                          setState(() => selectedMonth = val),
+                                          hint: Text(
+                                            'Select Month',
+                                            style: TextStyle(
+                                              color: Colors.white.withOpacity(0.8),
+                                            ),
+                                          ),
+                                          value: selectedMonth,
+                                          items: month.map((m) {
+                                            return DropdownMenuItem<String>(
+                                              value: m,
+                                              child: Text(
+                                                m,
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            );
+                                          }).toList(),
+                                          onChanged: (val) =>
+                                              setState(() => selectedMonth = val),
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: AppTextField(
+                                      label: " To Year",
+                                      controller: endYearController,
+                                      keyboardType: TextInputType.number,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                          color: Colors.white.withOpacity(0.3),
+                                        ),
+                                      ),
+                                      child: DropdownButtonHideUnderline(
+                                        child: DropdownButton2<String>(
+                                          isExpanded: true,
+                                          dropdownStyleData: DropdownStyleData(
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(14),
+                                              gradient: const LinearGradient(
+                                                colors: [
+                                                  Color.fromARGB(255, 152, 146, 244),
+                                                  Color(0xffe4d8fd),
+                                                  Color(0xff9b8fff),
+                                                ],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
+                                            ),
+                                          ),
+                                          hint: Text(
+                                            'Select Month',
+                                            style: TextStyle(
+                                              color: Colors.white.withOpacity(0.8),
+                                            ),
+                                          ),
+                                          value: endSelectedMonth,
+                                          items: month.map((m) {
+                                            return DropdownMenuItem<String>(
+                                              value: m,
+                                              child: Text(
+                                                m,
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            );
+                                          }).toList(),
+                                          onChanged: (val) =>
+                                              setState(() => endSelectedMonth = val),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -194,7 +265,6 @@ class _ExperienceState extends State<Experience> {
                             label: "Description",
                             controller: descriptionController,
                             maxLines: 3,
-                            prefixIcon: const Icon(Icons.description, color: Colors.white70),
                           ),
                           SizedBox(height: 15),
                           ElevatedButton(
