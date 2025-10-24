@@ -53,7 +53,7 @@ class _DeclarationState extends State<Declaration> {
                   ),
                   const SizedBox(height: 30),
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(36),
+                    borderRadius: BorderRadius.circular(25),
                     child: BackdropFilter(
                       filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                       child: Container(
@@ -63,7 +63,7 @@ class _DeclarationState extends State<Declaration> {
                         ),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.25),
-                          borderRadius: BorderRadius.circular(36),
+                          borderRadius: BorderRadius.circular(25),
                           border: Border.all(
                             color: Colors.white.withOpacity(0.3),
                             width: 1.5,
