@@ -125,7 +125,7 @@ class _ReferencesState extends State<References> {
                           ),
                           const SizedBox(height: 24),
                          ElevatedButton(
-                            onPressed: () async {},
+                            onPressed: widget.onNext,
                             child: Text('Next'),
                             style: ElevatedButton.styleFrom(
                               minimumSize: Size(double.infinity, 62),

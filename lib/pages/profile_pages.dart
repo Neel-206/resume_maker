@@ -2,7 +2,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class profilepage extends StatefulWidget {
-  const profilepage({super.key});
+  final VoidCallback? onNext;
+  const profilepage({super.key, this.onNext});
 
   @override
   State<profilepage> createState() => _profilepageState();
@@ -190,7 +191,7 @@ class _profilepageState extends State<profilepage> {
                           ),
                           SizedBox(height: 20,),
                           ElevatedButton(
-                            onPressed: () {},
+                            onPressed: widget.onNext,
                             child: Text('Next'),
                             style: ElevatedButton.styleFrom(
                               minimumSize: Size(double.infinity, 62),

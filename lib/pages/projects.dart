@@ -5,7 +5,8 @@ import 'package:resume_maker/widgets/app_text_field.dart';
 
 
 class Projects extends StatefulWidget {
-  const Projects({super.key});
+  final VoidCallback? onNext;
+  const Projects({super.key, this.onNext});
 
   @override
   State<Projects> createState() => _ProjectsState();
@@ -120,7 +121,7 @@ class _ProjectsState extends State<Projects> {
                           ),
                           const SizedBox(height: 15),
                           ElevatedButton(
-                            onPressed: () async {},
+                            onPressed: widget.onNext,
                             child: const Text('Next'),
                             style: ElevatedButton.styleFrom(
                               minimumSize: const Size(double.infinity, 62),

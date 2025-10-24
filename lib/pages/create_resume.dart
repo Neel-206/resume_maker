@@ -191,29 +191,62 @@ class _CreateResumeState extends State<CreateResume> {
                 itemBuilder: (context, index) {
                   switch (index) {
                     case 0:
-                      return profilepage();
+                      return profilepage(onNext: () => pageController.nextPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      ));
                     case 1:
-                      return awardpage();
+                      return awardpage(onNext: () => pageController.nextPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      ));
                     case 2:
-                      return Declaration();
+                      return Declaration(onNext: () => pageController.nextPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      ));
                     case 3:
-                      return Aboutme();
+                      return Aboutme(onNext: () => pageController.nextPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      ));
                     case 4:
-                      return Education();
+                      return Education(onNext: () => pageController.nextPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      ));
                     case 5:
-                      return Hobbies();
+                      return Hobbies(onNext: () => pageController.nextPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      ));
                     case 6:
-                      return Languages();
+                      return Languages(onNext: () => pageController.nextPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      ));
                     case 7:
-                      return Projects();
+                      return Projects(onNext: () => pageController.nextPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      ));
                     case 8:
-                      return References();
+                      return References(onNext: () => pageController.nextPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      ));
                     case 9:
-                      return Experience();
+                      return Experience(onNext: () => pageController.nextPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      ));
                     case 10:
-                      return Skills();
+                      return Skills(onNext: () => pageController.nextPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      ));
                     case 11:
-                      return Signature();
+                      return SignaturePage();
                     default:
                       return Center(child: Text('Page not found'));
                   }

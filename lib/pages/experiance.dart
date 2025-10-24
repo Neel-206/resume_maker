@@ -4,7 +4,8 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:resume_maker/widgets/app_text_field.dart';
 
 class Experience extends StatefulWidget {
-  const Experience({super.key});
+  final VoidCallback onNext;
+  const Experience({super.key, required this.onNext});
 
   @override
   State<Experience> createState() => _ExperienceState();
@@ -268,7 +269,7 @@ class _ExperienceState extends State<Experience> {
                           ),
                           SizedBox(height: 15),
                           ElevatedButton(
-                            onPressed: () async {},
+                            onPressed: widget.onNext,
                             child: Text('Next'),
                             style: ElevatedButton.styleFrom(
                               minimumSize: Size(double.infinity, 62),
