@@ -21,9 +21,13 @@ class _HomePageState extends State<HomePage> {
         height: double.infinity,
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xff5f56ee), Color(0xffe4d8fd)],
+            colors: [
+            Color(0xff5f56ee),
+            Color(0xffe4d8fd),
+            Color(0xff9b8fff),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
           ),
         ),
         child: Container(

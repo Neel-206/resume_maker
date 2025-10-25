@@ -35,20 +35,9 @@ class _profilepageState extends State<profilepage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        // gradient: LinearGradient(
-        //   colors: [
-        //     Color(0xff5f56ee),
-        //     Color(0xffe4d8fd),
-        //     Color(0xff9b8fff),
-        // ],
-        //   begin: Alignment.topLeft,
-        //   end: Alignment.bottomRight,
-        // )
-        color: Colors.transparent
-      ),
-      child: SingleChildScrollView(
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
         child: Center(
           child: ConstrainedBox(
@@ -64,7 +53,7 @@ class _profilepageState extends State<profilepage> {
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 28,
-                      fontWeight:FontWeight.bold,
+                      fontWeight: FontWeight.bold,
                       letterSpacing: 1.2,
                     ),
                   ),
@@ -122,7 +111,7 @@ class _profilepageState extends State<profilepage> {
                           const SizedBox(height: 12),
                           _buildTextField('Phone Number', phoneController),
                           const SizedBox(height: 18),
-                           GestureDetector(
+                          GestureDetector(
                             onTap: () {
                               setState(() {
                                 showAdditionalFields = !showAdditionalFields;
@@ -152,7 +141,6 @@ class _profilepageState extends State<profilepage> {
                               ],
                             ),
                           ),
-
                           ClipRect(
                             child: AnimatedSize(
                               duration: const Duration(milliseconds: 500),
@@ -189,38 +177,36 @@ class _profilepageState extends State<profilepage> {
                                   : SizedBox.shrink(),
                             ),
                           ),
-                          SizedBox(height: 20,),
-                          ElevatedButton(
-                            onPressed: widget.onNext,
-                            child: Text('Next'),
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: Size(double.infinity, 62),
-                              backgroundColor: Color.fromARGB(255, 111, 101, 247),
-                              foregroundColor: Colors.white,
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 26,
-                                vertical: 14,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(56),
-                              ),
-                              elevation: 8,
-                              shadowColor: Colors.deepPurpleAccent.withOpacity(
-                                0.6,
-                              ),
-                              textStyle: TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white
-                              ),
-                            ),
-                          ),
+                          SizedBox(height: 20),
                         ],
                       ),
                     ),
                   ),
                 ),
               ],
+            ),
+          ),
+        ),
+      ),
+      floatingActionButton: SizedBox(
+        width: MediaQuery.of(context).size.width * 0.9,
+        child: ElevatedButton(
+          onPressed: widget.onNext,
+          child: Text('Next'),
+          style: ElevatedButton.styleFrom(
+            minimumSize: Size(double.infinity, 62),
+            backgroundColor: Color.fromARGB(255, 111, 101, 247),
+            foregroundColor: Colors.white,
+            padding: EdgeInsets.symmetric(horizontal: 26, vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(56),
+            ),
+            elevation: 8,
+            shadowColor: Colors.deepPurpleAccent.withOpacity(0.6),
+            textStyle: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
             ),
           ),
         ),

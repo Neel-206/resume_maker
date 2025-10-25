@@ -31,10 +31,10 @@ class _SignaturePageState extends State<SignaturePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(color: Colors.transparent),
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 85),
         child: Center(
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: 420),
@@ -120,126 +120,129 @@ class _SignaturePageState extends State<SignaturePage> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 24),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: ElevatedButton(
-                                  onPressed: () async {
-                                    if (controller.isEmpty) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Please provide your signature'),
-                                        ),
-                                      );
-                                      return;
-                                    }
-                                    if (widget.onNext != null) {
-                                      widget.onNext!();
-                                    }
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    minimumSize: const Size(double.infinity, 62),
-                                    backgroundColor: const Color.fromARGB(255, 111, 101, 247),
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 26,
-                                      vertical: 14,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(56),
-                                    ),
-                                    elevation: 8,
-                                    shadowColor: Colors.deepPurpleAccent.withOpacity(0.6),
-                                    textStyle: const TextStyle(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  child: const Text('Next'),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Container(
-                                width: 62,
-                                height: 62,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(56),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.2),
-                                      blurRadius: 30,
-                                      offset: const Offset(0, 15),
-                                      spreadRadius: -5,
-                                    ),
-                                  ],
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(56),
-                                  child: BackdropFilter(
-                                    filter: ui.ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(56),
-                                        color: Colors.red.withOpacity(0.1),
-                                        border: Border.all(
-                                          color: Colors.white.withOpacity(0.60),
-                                          width: 0.5,
-                                        ),
-                                        gradient: LinearGradient(
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                          colors: [
-                                            Colors.red.withOpacity(0.3),
-                                            Colors.red.withOpacity(0.1),
-                                          ],
-                                          stops: const [0.0, 1.0],
-                                        ),
-                                      ),
-                                      child: Material(
-                                        color: Colors.transparent,
-                                        child: InkWell(
-                                          onTap: () {
-                                            controller.clear();
-                                          },
-                                          splashFactory: InkRipple.splashFactory,
-                                          splashColor: Colors.red.withOpacity(0.2),
-                                          highlightColor: Colors.red.withOpacity(0.1),
-                                          child: Center(
-                                            child: ShaderMask(
-                                              shaderCallback: (Rect bounds) {
-                                                return LinearGradient(
-                                                  begin: Alignment.topLeft,
-                                                  end: Alignment.bottomRight,
-                                                  colors: [
-                                                    Colors.white.withOpacity(1),
-                                                    Colors.white.withOpacity(0.8),
-                                                  ],
-                                                ).createShader(bounds);
-                                              },
-                                              child: const Icon(
-                                                Icons.close_rounded,
-                                                color: Colors.white,
-                                                size: 32,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ]),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
           ),
+        ),
+      ),
+      floatingActionButton: SizedBox(
+        width: MediaQuery.of(context).size.width * 0.9,
+        child: Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () async {
+                  if (controller.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please provide your signature'),
+                      ),
+                    );
+                    return;
+                  }
+                  if (widget.onNext != null) {
+                    widget.onNext!();
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 62),
+                  backgroundColor: const Color.fromARGB(255, 111, 101, 247),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 26,
+                    vertical: 14,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(56),
+                  ),
+                  elevation: 8,
+                  shadowColor: Colors.deepPurpleAccent.withOpacity(0.6),
+                  textStyle: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+                child: const Text('Next'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Container(
+              width: 62,
+              height: 62,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(56),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 30,
+                    offset: const Offset(0, 15),
+                    spreadRadius: -5,
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(56),
+                child: BackdropFilter(
+                  filter: ui.ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(56),
+                      color: Colors.red.withOpacity(0.1),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.60),
+                        width: 0.5,
+                      ),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Colors.red.withOpacity(0.3),
+                          Colors.red.withOpacity(0.1),
+                        ],
+                        stops: const [0.0, 1.0],
+                      ),
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          controller.clear();
+                        },
+                        splashFactory: InkRipple.splashFactory,
+                        splashColor: Colors.red.withOpacity(0.2),
+                        highlightColor: Colors.red.withOpacity(0.1),
+                        child: Center(
+                          child: ShaderMask(
+                            shaderCallback: (Rect bounds) {
+                              return LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Colors.white.withOpacity(1),
+                                  Colors.white.withOpacity(0.8),
+                                ],
+                              ).createShader(bounds);
+                            },
+                            child: const Icon(
+                              Icons.close_rounded,
+                              color: Colors.white,
+                              size: 32,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -19,6 +19,7 @@ class _ExperienceState extends State<Experience> {
   final TextEditingController descriptionController = TextEditingController();
   String? selectedMonth;
   String? endSelectedMonth;
+  final List<Map<String, dynamic>> experiences = [];
 
   final List<String> month = [
     'January',
@@ -45,12 +46,35 @@ class _ExperienceState extends State<Experience> {
     super.dispose();
   }
 
+  void addExperience() {
+    final experience = {
+      'company': companyController.text,
+      'position': positionController.text,
+      'fromYear': yearController.text,
+      'fromMonth': selectedMonth,
+      'toYear': endYearController.text,
+      'toMonth': endSelectedMonth,
+      'description': descriptionController.text,
+    };
+
+    setState(() {
+      experiences.add(experience);
+      companyController.clear();
+      positionController.clear();
+      yearController.clear();
+      endYearController.clear();
+      descriptionController.clear();
+      selectedMonth = null;
+      endSelectedMonth = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(color: Colors.transparent),
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 85),
         child: Center(
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: 420),
@@ -82,7 +106,7 @@ class _ExperienceState extends State<Experience> {
                 ),
                 const SizedBox(height: 30),
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(36),
+                  borderRadius: BorderRadius.circular(25),
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                     child: Container(
@@ -92,7 +116,7 @@ class _ExperienceState extends State<Experience> {
                       ),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.25),
-                        borderRadius: BorderRadius.circular(36),
+                        borderRadius: BorderRadius.circular(25),
                         border: Border.all(
                           color: Colors.white.withOpacity(0.3),
                           width: 1.5,
@@ -268,36 +292,124 @@ class _ExperienceState extends State<Experience> {
                             maxLines: 3,
                           ),
                           SizedBox(height: 15),
-                          ElevatedButton(
-                            onPressed: widget.onNext,
-                            child: Text('Next'),
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: Size(double.infinity, 62),
-                              backgroundColor: Color.fromARGB(
-                                255,
-                                111,
-                                101,
-                                247,
+                           if (experiences.isNotEmpty) ...[
+                              Text(
+                                'Added Experiences',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.9),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                              foregroundColor: Colors.white,
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 26,
-                                vertical: 14,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(56),
-                              ),
-                              elevation: 8,
-                              shadowColor: Colors.deepPurpleAccent.withOpacity(
-                                0.6,
-                              ),
-                              textStyle: TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
+                              ...experiences.asMap().entries.map((entry) {
+                                final index = entry.key;
+                                final experience = entry.value;
+
+                                return Container(
+                                  margin: const EdgeInsets.only(bottom: 8),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              experience['company'],
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              experience['position'],
+                                              style: TextStyle(
+                                                color: Colors.white.withOpacity(
+                                                  0.7,
+                                                ),
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              experience['fromMonth'] ,
+                                              style: TextStyle(
+                                                color: Colors.white.withOpacity(
+                                                  0.7,
+                                                ),
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              experience['fromYear'],
+                                              style: TextStyle(
+                                                color: Colors.white.withOpacity(
+                                                  0.7,
+                                                ),
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              experience['toMonth'] ,
+                                              style: TextStyle(
+                                                color: Colors.white.withOpacity(
+                                                  0.7,
+                                                ),
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              experience['toYear'],
+                                              style: TextStyle( 
+                                                color: Colors.white.withOpacity(
+                                                  0.7,
+                                                ),
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 6),
+                                            Text(
+                                              experience['description'],
+                                              style: TextStyle(
+                                                color: Colors.white.withOpacity(
+                                                  0.7,
+                                                ),
+                                                fontSize: 14,
+                                              ),  
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.close,
+                                          color: Colors.white70,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            experiences.removeAt(index);
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }),
+                            ],
+                          
                         ],
                       ),
                     ),
@@ -308,6 +420,110 @@ class _ExperienceState extends State<Experience> {
           ),
         ),
       ),
+      floatingActionButton: SizedBox(
+        width: MediaQuery.of(context).size.width * 0.9,
+        child: Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  widget.onNext(); 
+                },
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 62),
+                  backgroundColor: const Color.fromARGB(255, 111, 101, 247),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 26,
+                    vertical: 14,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(56),
+                  ),
+                  elevation: 8,
+                  shadowColor: Colors.deepPurpleAccent.withOpacity(0.6),
+                  textStyle: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+                child: const Text('Next'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Container(
+              width: 62,
+              height: 62,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(56),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 30,
+                    offset: const Offset(0, 15),
+                    spreadRadius: -5,
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(56),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(56),
+                      color: Colors.white.withOpacity(0.1),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.60),
+                        width: 0.5,
+                      ),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Colors.white.withOpacity(0.5),
+                          Colors.white.withOpacity(0.1),
+                        ],
+                        stops: const [0.0, 1.0],
+                      ),
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: addExperience,
+                        splashFactory: InkRipple.splashFactory,
+                        splashColor: Colors.white.withOpacity(0.2),
+                        highlightColor: Colors.white.withOpacity(0.1),
+                        child: Center(
+                          child: ShaderMask(
+                            shaderCallback: (Rect bounds) {
+                              return LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Colors.white.withOpacity(1),
+                                  Colors.white.withOpacity(0.8),
+                                ],
+                              ).createShader(bounds);
+                            },
+                            child: const Icon(
+                              Icons.add_rounded,
+                              color: Colors.white,
+                              size: 32,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

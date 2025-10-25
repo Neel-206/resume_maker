@@ -44,10 +44,10 @@ class _SkillsState extends State<Skills> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(color: Colors.transparent),
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 85),
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 420),
@@ -79,7 +79,7 @@ class _SkillsState extends State<Skills> {
                 ),
                 const SizedBox(height: 30),
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(36),
+                  borderRadius: BorderRadius.circular(25),
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                     child: Container(
@@ -89,7 +89,7 @@ class _SkillsState extends State<Skills> {
                       ),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.25),
-                        borderRadius: BorderRadius.circular(36),
+                        borderRadius: BorderRadius.circular(25),
                         border: Border.all(
                           color: Colors.white.withOpacity(0.3),
                           width: 1.5,
@@ -123,8 +123,7 @@ class _SkillsState extends State<Skills> {
                               ),
                               const SizedBox(width: 12),
                               SizedBox(
-                                width:
-                                    140, // fixed width to constrain dropdown container
+                                width: 140,
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 12,
@@ -264,117 +263,6 @@ class _SkillsState extends State<Skills> {
 
                             const SizedBox(height: 24),
                           ],
-                          Row(
-                            children: [
-                              Expanded(
-                                child: ElevatedButton(
-                                  onPressed: () async {
-                                    if (widget.onNext != null) {
-                                      widget.onNext!();
-                                    }
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    minimumSize: const Size(double.infinity, 62),
-                                    backgroundColor: const Color.fromARGB(255, 111, 101, 247),
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 26,
-                                      vertical: 14,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(56),
-                                    ),
-                                    elevation: 8,
-                                    shadowColor: Colors.deepPurpleAccent.withOpacity(0.6),
-                                    textStyle: const TextStyle(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  child: const Text('Next'),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Container(
-                                width: 62,
-                                height: 62,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(56),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.2),
-                                      blurRadius: 30,
-                                      offset: const Offset(0, 15),
-                                      spreadRadius: -5,
-                                    ),
-                                  ],
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(56),
-                                  child: BackdropFilter(
-                                    filter: ImageFilter.blur(
-                                      sigmaX: 12,
-                                      sigmaY: 12,
-                                    ),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(56),
-                                        color: Colors.white.withOpacity(0.1),
-                                        border: Border.all(
-                                          color: Colors.white.withOpacity(0.60),
-                                          width: 0.5,
-                                        ),
-                                        gradient: LinearGradient(
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                          colors: [
-                                            Colors.white.withOpacity(0.5),
-                                            Colors.white.withOpacity(0.1),
-                                          ],
-                                          stops: const [0.0, 1.0],
-                                        ),
-                                      ),
-                                      child: Material(
-                                        color: Colors.transparent,
-                                        child: InkWell(
-                                          onTap: addSkill,
-                                          splashFactory:
-                                              InkRipple.splashFactory,
-                                          splashColor: Colors.white.withOpacity(
-                                            0.2,
-                                          ),
-                                          highlightColor: Colors.white
-                                              .withOpacity(0.1),
-                                          child: Center(
-                                            child: ShaderMask(
-                                              shaderCallback: (Rect bounds) {
-                                                return LinearGradient(
-                                                  begin: Alignment.topLeft,
-                                                  end: Alignment.bottomRight,
-                                                  colors: [
-                                                    Colors.white.withOpacity(1),
-                                                    Colors.white.withOpacity(
-                                                      0.8,
-                                                    ),
-                                                  ],
-                                                ).createShader(bounds);
-                                              },
-                                              child: const Icon(
-                                                Icons.add_rounded,
-                                                color: Colors.white,
-                                                size: 32,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
                         ],
                       ),
                     ),
@@ -383,6 +271,111 @@ class _SkillsState extends State<Skills> {
               ],
             ),
           ),
+        ),
+      ),
+      floatingActionButton: SizedBox(
+        width: MediaQuery.of(context).size.width * 0.9,
+        child: Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () async {
+                  if (widget.onNext != null) {
+                    widget.onNext!();
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 62),
+                  backgroundColor: const Color.fromARGB(255, 111, 101, 247),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 26,
+                    vertical: 14,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(56),
+                  ),
+                  elevation: 8,
+                  shadowColor: Colors.deepPurpleAccent.withOpacity(0.6),
+                  textStyle: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+                child: const Text('Next'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Container(
+              width: 62,
+              height: 62,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(56),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 30,
+                    offset: const Offset(0, 15),
+                    spreadRadius: -5,
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(56),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(56),
+                      color: Colors.white.withOpacity(0.1),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.60),
+                        width: 0.5,
+                      ),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Colors.white.withOpacity(0.5),
+                          Colors.white.withOpacity(0.1),
+                        ],
+                        stops: const [0.0, 1.0],
+                      ),
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: addSkill,
+                        splashFactory: InkRipple.splashFactory,
+                        splashColor: Colors.white.withOpacity(0.2),
+                        highlightColor: Colors.white.withOpacity(0.1),
+                        child: Center(
+                          child: ShaderMask(
+                            shaderCallback: (Rect bounds) {
+                              return LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Colors.white.withOpacity(1),
+                                  Colors.white.withOpacity(0.8),
+                                ],
+                              ).createShader(bounds);
+                            },
+                            child: const Icon(
+                              Icons.add_rounded,
+                              color: Colors.white,
+                              size: 32,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
