@@ -407,9 +407,9 @@ class _ExperienceState extends State<Experience> {
                                     ],
                                   ),
                                 );
-                              }),
-                            ],
-                          
+                              }
+                            ),
+                          ],
                         ],
                       ),
                     ),

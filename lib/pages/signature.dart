@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:resume_maker/pages/choose_template.dart';
 import 'package:signature/signature.dart';
 
 class SignaturePage extends StatefulWidget {
@@ -137,17 +138,15 @@ class _SignaturePageState extends State<SignaturePage> {
             Expanded(
               child: ElevatedButton(
                 onPressed: () async {
-                  if (controller.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please provide your signature'),
-                      ),
-                    );
-                    return;
-                  }
-                  if (widget.onNext != null) {
-                    widget.onNext!();
-                  }
+                  // if (controller.isEmpty) {
+                  //   ScaffoldMessenger.of(context).showSnackBar(
+                  //     const SnackBar(
+                  //       content: Text('Please provide your signature'),
+                  //     ),
+                  //   );
+                  //   return;
+                  // }
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) =>  ChooseTemplate(),));
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 62),

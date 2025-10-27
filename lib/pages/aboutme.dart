@@ -14,7 +14,7 @@ class Aboutme extends StatefulWidget {
 
 class _AboutmeState extends State<Aboutme> {
   final TextEditingController aboutController = TextEditingController();
-
+  final form_Key = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,10 +87,19 @@ class _AboutmeState extends State<Aboutme> {
                         ),
                         child: Column(
                           children: [
-                            AppTextField(
-                              controller: aboutController,
-                              label: 'About me',
-                              maxLines: 5,
+                            Form(
+                              key: form_Key,
+                              child: AppTextField(
+                                controller: aboutController,
+                                label: 'About me',
+                                maxLines: 5,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter your first name';
+                                  }
+                                  return null;
+                                },
+                              ),
                             ),
                             SizedBox(height: 15),
                           ],
@@ -107,7 +116,16 @@ class _AboutmeState extends State<Aboutme> {
       floatingActionButton: SizedBox(
         width: MediaQuery.of(context).size.width * 0.9,
         child: ElevatedButton(
-          onPressed: widget.onNext,
+
+          onPressed: (){
+            if (form_Key.currentState?.validate() ?? false) {
+              widget.onNext?.call();
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content:Text('Please fill required fields correctly.')),
+              );
+            }
+          },
           child: Text('Next'),
           style: ElevatedButton.styleFrom(
             minimumSize: Size(double.infinity, 62),

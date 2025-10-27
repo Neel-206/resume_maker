@@ -10,6 +10,8 @@ class profilepage extends StatefulWidget {
 }
 
 class _profilepageState extends State<profilepage> {
+  final form_Key = GlobalKey<FormState>();
+
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -18,6 +20,7 @@ class _profilepageState extends State<profilepage> {
   final TextEditingController cityController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController pincodeController = TextEditingController();
+
   bool showAdditionalFields = false;
 
   @override
@@ -101,84 +104,129 @@ class _profilepageState extends State<profilepage> {
                           end: Alignment.bottomRight,
                         ),
                       ),
-                      child: Column(
-                        children: [
-                          _buildTextField('First Name', firstNameController),
-                          const SizedBox(height: 12),
-                          _buildTextField('Last Name', lastNameController),
-                          const SizedBox(height: 12),
-                          _buildTextField('Email', emailController),
-                          const SizedBox(height: 12),
-                          _buildTextField('Phone Number', phoneController),
-                          const SizedBox(height: 18),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                showAdditionalFields = !showAdditionalFields;
-                              });
-                            },
-                            child: Row(
-                              children: [
-                                Container(
-                                  alignment: Alignment.bottomLeft,
-                                  child: Text(
-                                    'Additional Information',
-                                    style: TextStyle(
-                                      color: Colors.white.withOpacity(0.8),
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
+                      child: Form(
+                        key: form_Key,
+                        child: Column(
+                          children: [
+                            _buildTextField(
+                              'First Name',
+                              firstNameController,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your first name';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 12),
+                            _buildTextField(
+                              'Last Name',
+                              lastNameController,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your last name';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 12),
+                            _buildTextField(
+                              'Email',
+                              emailController,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your email';
+                                }
+                                final emailRegex =
+                                    RegExp(r'^[^@]+@[^@]+\.[^@]+');
+                                if (!emailRegex.hasMatch(value)) {
+                                  return 'Enter a valid email';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 12),
+                            _buildTextField(
+                              'Phone Number',
+                              phoneController,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your phone number';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 18),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  showAdditionalFields = !showAdditionalFields;
+                                });
+                              },
+                              child: Row(
+                                children: [
+                                  Container(
+                                    alignment: Alignment.bottomLeft,
+                                    child: Text(
+                                      'Additional Information',
+                                      style: TextStyle(
+                                        color: Colors.white.withOpacity(0.8),
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                AnimatedRotation(
-                                  duration: const Duration(milliseconds: 600),
-                                  turns: showAdditionalFields ? 0.5 : 0.0,
-                                  child: Icon(
-                                    Icons.keyboard_arrow_down_rounded,
-                                    color: Colors.white.withOpacity(0.8),
+                                  AnimatedRotation(
+                                    duration:
+                                        const Duration(milliseconds: 600),
+                                    turns: showAdditionalFields ? 0.5 : 0.0,
+                                    child: Icon(
+                                      Icons.keyboard_arrow_down_rounded,
+                                      color: Colors.white.withOpacity(0.8),
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                          ClipRect(
-                            child: AnimatedSize(
-                              duration: const Duration(milliseconds: 500),
-                              curve: Curves.easeInOut,
-                              child: showAdditionalFields
-                                  ? Column(
-                                      children: [
-                                        Divider(
-                                          color: Colors.white.withOpacity(0.3),
-                                        ),
-                                        const SizedBox(height: 10),
-                                        buildAdditionalFields(
-                                          'Country',
-                                          countryController,
-                                        ),
-                                        const SizedBox(height: 12),
-                                        buildAdditionalFields(
-                                          'City',
-                                          cityController,
-                                        ),
-                                        const SizedBox(height: 12),
-                                        buildAdditionalFields(
-                                          'Address',
-                                          addressController,
-                                        ),
-                                        const SizedBox(height: 12),
-                                        buildAdditionalFields(
-                                          'Pincode',
-                                          pincodeController,
-                                        ),
-                                        const SizedBox(height: 5),
-                                      ],
-                                    )
-                                  : SizedBox.shrink(),
+                            ClipRect(
+                              child: AnimatedSize(
+                                duration: const Duration(milliseconds: 500),
+                                curve: Curves.easeInOut,
+                                child: showAdditionalFields
+                                    ? Column(
+                                        children: [
+                                          Divider(
+                                            color: Colors.white.withOpacity(0.3),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          buildAdditionalFields(
+                                            'Country',
+                                            countryController,
+                                          ),
+                                          const SizedBox(height: 12),
+                                          buildAdditionalFields(
+                                            'City',
+                                            cityController,
+                                          ),
+                                          const SizedBox(height: 12),
+                                          buildAdditionalFields(
+                                            'Address',
+                                            addressController,
+                                          ),
+                                          const SizedBox(height: 12),
+                                          buildAdditionalFields(
+                                            'Pincode',
+                                            pincodeController,
+                                          ),
+                                          const SizedBox(height: 5),
+                                        ],
+                                      )
+                                    : SizedBox.shrink(),
+                              ),
                             ),
-                          ),
-                          SizedBox(height: 20),
-                        ],
+                            SizedBox(height: 20),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -191,7 +239,15 @@ class _profilepageState extends State<profilepage> {
       floatingActionButton: SizedBox(
         width: MediaQuery.of(context).size.width * 0.9,
         child: ElevatedButton(
-          onPressed: widget.onNext,
+          onPressed: () {
+            if (form_Key.currentState?.validate() ?? false) {
+              widget.onNext?.call();
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content:Text('Please fill first four required fields correctly.')),
+              );
+            }
+          },
           child: Text('Next'),
           style: ElevatedButton.styleFrom(
             minimumSize: Size(double.infinity, 62),
@@ -214,9 +270,11 @@ class _profilepageState extends State<profilepage> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller) {
+  Widget _buildTextField(String label, TextEditingController controller,
+      {String? Function(String?)? validator}) {
     return TextFormField(
-      controller: controller, // Assign controller here
+      controller: controller,
+      validator: validator,
       decoration: InputDecoration(
         labelText: ' $label',
         labelStyle: TextStyle(color: Colors.white.withOpacity(0.3)),

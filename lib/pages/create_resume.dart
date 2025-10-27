@@ -44,6 +44,38 @@ class _CreateResumeState extends State<CreateResume> {
     TabItem(icon: Icons.code_outlined, label: 'Skills'),
     TabItem(icon: Icons.edit, label: 'Signature'),
   ];
+  final ScrollController tabScrollController = ScrollController();
+  final List<GlobalKey> tabKeys = List.generate(12, (index) => GlobalKey());
+
+  void animateToTab(int i) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final context = tabKeys[i].currentContext;
+      if (context == null) return;
+
+      final RenderBox currentTabBox = context.findRenderObject() as RenderBox;
+      final Size tabSize = currentTabBox.size;
+      final Offset tabPosition = currentTabBox.localToGlobal(
+        Offset.zero,
+        ancestor: this.context.findRenderObject(),
+      );
+
+      final double tabCenter = tabPosition.dx + tabSize.width / 2;
+      final double screenWidth = MediaQuery.of(this.context).size.width;
+      final double desiredOffset = tabCenter - screenWidth / 2;
+
+      tabScrollController.animateTo(
+        desiredOffset + tabScrollController.offset,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
+
+  void dispose() {
+    tabScrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,13 +83,9 @@ class _CreateResumeState extends State<CreateResume> {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-            Color(0xff5f56ee),
-            Color(0xffe4d8fd),
-            Color(0xff9b8fff),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+            colors: [Color(0xff5f56ee), Color(0xffe4d8fd), Color(0xff9b8fff)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
         ),
         child: Column(
@@ -89,11 +117,11 @@ class _CreateResumeState extends State<CreateResume> {
             const SizedBox(height: 20),
 
             SingleChildScrollView(
+              controller: tabScrollController,
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: List.generate(tabs.length, (i) {
                   final selected = currentStep == i;
-
                   Widget tabInnerContent = Row(
                     children: [
                       Icon(
@@ -161,8 +189,10 @@ class _CreateResumeState extends State<CreateResume> {
                     );
                   }
                   return GestureDetector(
+                    key: tabKeys[i],
                     onTap: () {
                       setState(() => currentStep = i);
+                      animateToTab(i);
                       if (currentStep == 1) {
                         pageController.jumpToPage(i);
                       } else {
@@ -185,65 +215,88 @@ class _CreateResumeState extends State<CreateResume> {
                 controller: pageController,
                 onPageChanged: (index) {
                   setState(() => currentStep = index);
+                  animateToTab(index);
                 },
                 itemCount: tabs.length,
                 itemBuilder: (context, index) {
                   switch (index) {
                     case 0:
-                      return profilepage(onNext: () => pageController.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      ));
+                      return profilepage(
+                        onNext: () => pageController.nextPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        ),
+                      );
                     case 1:
-                      return awardpage(onNext: () => pageController.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      ));
+                      return awardpage(
+                        onNext: () => pageController.nextPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        ),
+                      );
                     case 2:
-                      return Declaration(onNext: () => pageController.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      ));
+                      return Declaration(
+                        onNext: () => pageController.nextPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        ),
+                      );
                     case 3:
-                      return Aboutme(onNext: () => pageController.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      ));
+                      return Aboutme(
+                        onNext: () => pageController.nextPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        ),
+                      );
                     case 4:
-                      return Education(onNext: () => pageController.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      ));
+                      return Education(
+                        onNext: () => pageController.nextPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        ),
+                      );
                     case 5:
-                      return Hobbies(onNext: () => pageController.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      ));
+                      return Hobbies(
+                        onNext: () => pageController.nextPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        ),
+                      );
                     case 6:
-                      return Languages(onNext: () => pageController.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      ));
+                      return Languages(
+                        onNext: () => pageController.nextPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        ),
+                      );
                     case 7:
-                      return Projects(onNext: () => pageController.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      ));
+                      return Projects(
+                        onNext: () => pageController.nextPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        ),
+                      );
                     case 8:
-                      return References(onNext: () => pageController.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      ));
+                      return References(
+                        onNext: () => pageController.nextPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        ),
+                      );
                     case 9:
-                      return Experience(onNext: () => pageController.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      ));
+                      return Experience(
+                        onNext: () => pageController.nextPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        ),
+                      );
                     case 10:
-                      return Skills(onNext: () => pageController.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      ));
+                      return Skills(
+                        onNext: () => pageController.nextPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        ),
+                      );
                     case 11:
                       return SignaturePage();
                     default:
