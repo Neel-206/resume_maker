@@ -31,8 +31,9 @@ class _SignaturePageState extends State<SignaturePage> {
   void _loadSignature() async {
     final allRows = await dbHelper.queryAllRows(DatabaseHelper.tableSignature);
     if (allRows.isNotEmpty && allRows.first['signature'] != null) {
-      // ignore: unused_local_variable
-      final signatureBytes = allRows.first['signature'] as Uint8List;
+      // final signatureBytes = allRows.first['signature'] as Uint8List;
+      // The signature is loaded from DB when generating the PDF,
+      // no need to re-draw it here.
     }
   }
 
@@ -40,11 +41,14 @@ class _SignaturePageState extends State<SignaturePage> {
     if (controller.isNotEmpty) {
       final Uint8List? data = await controller.toPngBytes();
       if (data != null) {
-        final allRows = await dbHelper.queryAllRows(DatabaseHelper.tableSignature);
+        // Clear existing signature and save new one
+        final allRows =
+            await dbHelper.queryAllRows(DatabaseHelper.tableSignature);
         for (var row in allRows) {
           await dbHelper.delete(DatabaseHelper.tableSignature, row['id']);
         }
-        await dbHelper.insert(DatabaseHelper.tableSignature, {'signature': data});
+        await dbHelper
+            .insert(DatabaseHelper.tableSignature, {'signature': data});
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

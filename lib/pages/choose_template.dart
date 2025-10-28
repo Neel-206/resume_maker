@@ -82,7 +82,7 @@ class _ChooseTemplateState extends State<ChooseTemplate> {
                             crossAxisCount: 2,
                             mainAxisSpacing: 16,
                             crossAxisSpacing: 16,
-                            childAspectRatio: 0.8
+                            childAspectRatio: 0.85
                           ),
                       itemCount: Templates.length,
                       itemBuilder: (BuildContext context, int index) {
@@ -94,7 +94,7 @@ class _ChooseTemplateState extends State<ChooseTemplate> {
                           child: Container(
                             padding: EdgeInsets.symmetric(
                               //horizontal: screenWidth * 0.10,
-                              vertical: screenHeight * 0.01,
+                              vertical: screenHeight * 0.018,
                             ),
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.25),
@@ -123,10 +123,19 @@ class _ChooseTemplateState extends State<ChooseTemplate> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Expanded(
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: Image.asset(
-                                      template.thumbnail,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(13),
+                                      border: Border.all(
+                                        color: Colors.white.withOpacity(0.5),
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Image.asset(
+                                        template.thumbnail,
+                                      ),
                                     ),
                                   ),
                                 ),
