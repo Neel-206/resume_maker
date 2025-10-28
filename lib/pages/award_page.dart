@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:resume_maker/widgets/app_text_field.dart';
+import 'package:resume_maker/services/database_helper.dart';
 
 class awardpage extends StatefulWidget {
   final VoidCallback? onNext;
@@ -16,7 +17,8 @@ class _awardpageState extends State<awardpage> {
   final TextEditingController issueController = TextEditingController();
   final TextEditingController yearController = TextEditingController();
   final TextEditingController discriptionController = TextEditingController();
-  final List<Map<String, dynamic>> Awards = [];
+  final List<Map<String, dynamic>> awards = [];
+  final dbHelper = DatabaseHelper.instance;
   final List<String> month = [
     'January',
     'February',
@@ -33,26 +35,56 @@ class _awardpageState extends State<awardpage> {
   ];
   String? selectedMonth;
 
-  void addAward() {
+  @override
+  void initState() {
+    super.initState();
+    _loadAwards();
+  }
+
+  void _loadAwards() async {
+    final allRows = await dbHelper.queryAllRows(DatabaseHelper.tableAwards);
+    setState(() {
+      awards.clear();
+      awards.addAll(allRows);
+    });
+  }
+
+  void _addAward() async {
     if (titleController.text.trim().isNotEmpty ||
         issueController.text.trim().isNotEmpty ||
         yearController.text.trim().isNotEmpty ||
         discriptionController.text.trim().isNotEmpty) {
+      Map<String, dynamic> row = {
+        'title': titleController.text.trim(),
+        'issuer': issueController.text.trim(),
+        'year': yearController.text.trim(),
+        'month': selectedMonth,
+        'description': discriptionController.text.trim(),
+      };
+      final id = await dbHelper.insert(DatabaseHelper.tableAwards, row);
+      row['id'] = id;
       setState(() {
-        Awards.add({
-          'Title': titleController.text.trim(),
-          'Issuer': issueController.text.trim(),
-          'Year': yearController.text.trim(),
-          'Month': selectedMonth,
-          'Discription': discriptionController.text.trim(),
-        });
+        awards.add(row);
         titleController.clear();
         issueController.clear();
         yearController.clear();
-        selectedMonth = 'January';
+        selectedMonth = null;
         discriptionController.clear();
       });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Award added successfully!')),
+        );
+      }
     }
+  }
+
+  void _deleteAward(int id, int index) async {
+    await dbHelper.delete(DatabaseHelper.tableAwards, id);
+    setState(() {
+      awards.removeAt(index);
+    });
   }
 
   @override
@@ -216,7 +248,7 @@ class _awardpageState extends State<awardpage> {
                               maxLines: 3,
                             ),
                             SizedBox(height: 15),
-                            if (Awards.isNotEmpty) ...[
+                            if (awards.isNotEmpty) ...[
                               Text(
                                 'Added Awards',
                                 style: TextStyle(
@@ -225,7 +257,7 @@ class _awardpageState extends State<awardpage> {
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              ...Awards.asMap().entries.map((entry) {
+                              ...awards.asMap().entries.map((entry) {
                                 final index = entry.key;
                                 final award = entry.value;
 
@@ -247,7 +279,7 @@ class _awardpageState extends State<awardpage> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              award['Title'],
+                                              award['title'] ?? '',
                                               style: const TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 16,
@@ -256,7 +288,7 @@ class _awardpageState extends State<awardpage> {
                                             ),
                                             const SizedBox(height: 4),
                                             Text(
-                                              award['Issuer'],
+                                              award['issuer'] ?? '',
                                               style: TextStyle(
                                                 color: Colors.white.withOpacity(
                                                   0.7,
@@ -266,7 +298,7 @@ class _awardpageState extends State<awardpage> {
                                             ),
                                             const SizedBox(height: 4),
                                             Text(
-                                              award['Year'],
+                                              award['year'] ?? '',
                                               style: TextStyle(
                                                 color: Colors.white.withOpacity(
                                                   0.7,
@@ -276,7 +308,7 @@ class _awardpageState extends State<awardpage> {
                                             ),
                                             const SizedBox(height: 4),
                                             Text(
-                                              award['Month'],
+                                              award['month'] ?? '',
                                               style: TextStyle(
                                                 color: Colors.white.withOpacity(
                                                   0.7,
@@ -286,7 +318,7 @@ class _awardpageState extends State<awardpage> {
                                             ),
                                             const SizedBox(height: 4),
                                             Text(
-                                              award['Discription'],
+                                              award['description'] ?? '',
                                               style: TextStyle(
                                                 color: Colors.white.withOpacity(
                                                   0.7,
@@ -303,9 +335,7 @@ class _awardpageState extends State<awardpage> {
                                           color: Colors.white70,
                                         ),
                                         onPressed: () {
-                                          setState(() {
-                                            Awards.removeAt(index);
-                                          });
+                                          _deleteAward(award['id'], index);
                                         },
                                       ),
                                     ],
@@ -397,7 +427,7 @@ class _awardpageState extends State<awardpage> {
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: addAward,
+                        onTap: _addAward,
                         splashFactory: InkRipple.splashFactory,
                         splashColor: Colors.white.withOpacity(0.2),
                         highlightColor: Colors.white.withOpacity(0.1),

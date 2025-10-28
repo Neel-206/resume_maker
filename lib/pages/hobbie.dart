@@ -2,9 +2,10 @@ import 'dart:ui';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 
+import 'package:resume_maker/services/database_helper.dart';
+
 class Hobbies extends StatefulWidget {
   final VoidCallback? onNext;
-  
   const Hobbies({super.key, this.onNext});
 
   @override
@@ -12,8 +13,9 @@ class Hobbies extends StatefulWidget {
 }
 
 class _HobbiesState extends State<Hobbies> {
-  final List<Map<String, dynamic>> Hobbies = [];
-  final List<String> Hobbie = [
+  final List<Map<String, dynamic>> hobbiesList = [];
+  final dbHelper = DatabaseHelper.instance;
+  final List<String> hobbieOptions = [
     'None',
     'Art',
     'Blogging',
@@ -34,23 +36,46 @@ class _HobbiesState extends State<Hobbies> {
     'Yoga',
     'Coding'
   ];
-  String? selectedHobbie;
+  String? selectedHobby;
 
   @override
   void initState() {
     super.initState();
-    selectedHobbie = Hobbie[0]; // Initialize with 'None'
+    selectedHobby = hobbieOptions[0]; // Initialize with 'None'
+    _loadHobbies();
   }
 
-  void addHobbie() {
-    if (selectedHobbie != null && selectedHobbie != 'None') {
+  void _loadHobbies() async {
+    final allRows = await dbHelper.queryAllRows(DatabaseHelper.tableHobbies);
+    setState(() {
+      hobbiesList.clear();
+      hobbiesList.addAll(allRows);
+    });
+  }
+
+  void _addHobby() async {
+    if (selectedHobby != null && selectedHobby != 'None' && !hobbiesList.any((h) => h['name'] == selectedHobby)) {
+      Map<String, dynamic> row = {'name': selectedHobby};
+      final id = await dbHelper.insert(DatabaseHelper.tableHobbies, row);
+      row['id'] = id;
       setState(() {
-        Hobbies.add({
-          'Hobbie': selectedHobbie
-        });
-        selectedHobbie = 'None';
+        hobbiesList.add(row);
+        selectedHobby = 'None';
       });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Hobby added successfully!')),
+        );
+      }
     }
+  }
+
+  void _deleteHobby(int id, int index) async {
+    await dbHelper.delete(DatabaseHelper.tableHobbies, id);
+    setState(() {
+      hobbiesList.removeAt(index);
+    });
   }
 
   @override
@@ -165,8 +190,8 @@ class _HobbiesState extends State<Hobbies> {
                                             color: Colors.white.withOpacity(0.8),
                                           ),
                                         ),
-                                        value: selectedHobbie,
-                                        items: Hobbie.map((m) {
+                                        value: selectedHobby,
+                                        items: hobbieOptions.map((m) {
                                           return DropdownMenuItem<String>(
                                             value: m,
                                             child: Text(
@@ -178,7 +203,7 @@ class _HobbiesState extends State<Hobbies> {
                                           );
                                         }).toList(),
                                         onChanged: (val) =>
-                                            setState(() => selectedHobbie = val),
+                                            setState(() => selectedHobby = val),
                                       ),
                                     ),
                                   ),
@@ -186,7 +211,7 @@ class _HobbiesState extends State<Hobbies> {
                               ],
                             ),
                             SizedBox(height: 12),
-                             if (Hobbies.isNotEmpty) ...[
+                             if (hobbiesList.isNotEmpty) ...[
                               Text(
                                 'Added Hobbie',
                                 style: TextStyle(
@@ -196,7 +221,7 @@ class _HobbiesState extends State<Hobbies> {
                                 ),
                               ),
                               SizedBox(height: 10,),
-                              ...Hobbies.asMap().entries.map((entry) {
+                              ...hobbiesList.asMap().entries.map((entry) {
                                 final index = entry.key;
                                 final Hobbie1 = entry.value;
 
@@ -218,7 +243,7 @@ class _HobbiesState extends State<Hobbies> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              Hobbie1['Hobbie'],
+                                              Hobbie1['name'],
                                               style: const TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 16,
@@ -234,9 +259,7 @@ class _HobbiesState extends State<Hobbies> {
                                           color: Colors.white70,
                                         ),
                                         onPressed: () {
-                                          setState(() {
-                                            Hobbies.removeAt(index);
-                                          });
+                                          _deleteHobby(Hobbie1['id'], index);
                                         },
                                       ),
                                     ],
@@ -329,7 +352,7 @@ class _HobbiesState extends State<Hobbies> {
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: addHobbie,
+                        onTap: _addHobby,
                         splashFactory: InkRipple.splashFactory,
                         splashColor: Colors.white.withOpacity(0.2),
                         highlightColor: Colors.white.withOpacity(0.1),

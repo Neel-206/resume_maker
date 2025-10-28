@@ -115,7 +115,6 @@ class _CreateResumeState extends State<CreateResume> {
               ),
             ),
             const SizedBox(height: 20),
-
             SingleChildScrollView(
               controller: tabScrollController,
               scrollDirection: Axis.horizontal,
@@ -140,7 +139,6 @@ class _CreateResumeState extends State<CreateResume> {
                       ),
                     ],
                   );
-
                   Widget tabContent = Container(
                     margin: EdgeInsets.only(left: i == 0 ? 12 : 16),
                     padding: const EdgeInsets.symmetric(

@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:resume_maker/widgets/app_text_field.dart';
+import 'package:resume_maker/services/database_helper.dart';
 
 class Experience extends StatefulWidget {
   final VoidCallback onNext;
@@ -20,6 +21,7 @@ class _ExperienceState extends State<Experience> {
   String? selectedMonth;
   String? endSelectedMonth;
   final List<Map<String, dynamic>> experiences = [];
+  final dbHelper = DatabaseHelper.instance;
 
   final List<String> month = [
     'January',
@@ -35,6 +37,20 @@ class _ExperienceState extends State<Experience> {
     'November',
     'December',
   ];
+  final form_Key = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadExperiences();
+  }
+
+  void _loadExperiences() async {
+    final allRows = await dbHelper.queryAllRows(DatabaseHelper.tableExperience);
+    setState(() {
+      experiences.addAll(allRows);
+    });
+  }
 
   @override
   void dispose() {
@@ -46,8 +62,8 @@ class _ExperienceState extends State<Experience> {
     super.dispose();
   }
 
-  void addExperience() {
-    final experience = {
+  void _addExperience() async {
+    Map<String, dynamic> row = {
       'company': companyController.text,
       'position': positionController.text,
       'fromYear': yearController.text,
@@ -56,16 +72,32 @@ class _ExperienceState extends State<Experience> {
       'toMonth': endSelectedMonth,
       'description': descriptionController.text,
     };
+    if (row.values.any((element) => element != null && element.toString().isNotEmpty)) {
+      final id = await dbHelper.insert(DatabaseHelper.tableExperience, row);
+      row['id'] = id;
+      setState(() {
+        experiences.add(row);
+        companyController.clear();
+        positionController.clear();
+        yearController.clear();
+        endYearController.clear();
+        descriptionController.clear();
+        selectedMonth = null;
+        endSelectedMonth = null;
+      });
 
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Experience added successfully!')),
+        );
+      }
+    }
+  }
+
+  void _deleteExperience(int id, int index) async {
+    await dbHelper.delete(DatabaseHelper.tableExperience, id);
     setState(() {
-      experiences.add(experience);
-      companyController.clear();
-      positionController.clear();
-      yearController.clear();
-      endYearController.clear();
-      descriptionController.clear();
-      selectedMonth = null;
-      endSelectedMonth = null;
+      experiences.removeAt(index);
     });
   }
 
@@ -96,7 +128,7 @@ class _ExperienceState extends State<Experience> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'provide your Experienced of your corporate life',
+                  'Add your work experiences to showcase your professional journey.',
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.8),
                     fontSize: 15,
@@ -137,280 +169,311 @@ class _ExperienceState extends State<Experience> {
                           end: Alignment.bottomRight,
                         ),
                       ),
-                      child: Column(
-                        children: [
-                          AppTextField(
-                            label: "Company Name",
-                            controller: companyController,
-                          ),
-                          const SizedBox(height: 12),
-                          AppTextField(
-                            label: "Position/Role",
-                            controller: positionController,
-                          ),
-                          const SizedBox(height: 12),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: AppTextField(
-                                      label: "From Year",
-                                      controller: yearController,
-                                      keyboardType: TextInputType.number,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                          color: Colors.white.withOpacity(0.3),
-                                        ),
-                                      ),
-                                      child: DropdownButtonHideUnderline(
-                                        child: DropdownButton2<String>(
-                                          isExpanded: true,
-                                          dropdownStyleData: DropdownStyleData(
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(14),
-                                              gradient: const LinearGradient(
-                                                colors: [
-                                                  Color.fromARGB(255, 152, 146, 244),
-                                                  Color(0xffe4d8fd),
-                                                  Color(0xff9b8fff),
-                                                ],
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                              ),
-                                            ),
-                                          ),
-                                          hint: Text(
-                                            'Select Month',
-                                            style: TextStyle(
-                                              color: Colors.white.withOpacity(0.8),
-                                            ),
-                                          ),
-                                          value: selectedMonth,
-                                          items: month.map((m) {
-                                            return DropdownMenuItem<String>(
-                                              value: m,
-                                              child: Text(
-                                                m,
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            );
-                                          }).toList(),
-                                          onChanged: (val) =>
-                                              setState(() => selectedMonth = val),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: AppTextField(
-                                      label: " To Year",
-                                      controller: endYearController,
-                                      keyboardType: TextInputType.number,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                          color: Colors.white.withOpacity(0.3),
-                                        ),
-                                      ),
-                                      child: DropdownButtonHideUnderline(
-                                        child: DropdownButton2<String>(
-                                          isExpanded: true,
-                                          dropdownStyleData: DropdownStyleData(
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(14),
-                                              gradient: const LinearGradient(
-                                                colors: [
-                                                  Color.fromARGB(255, 152, 146, 244),
-                                                  Color(0xffe4d8fd),
-                                                  Color(0xff9b8fff),
-                                                ],
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                              ),
-                                            ),
-                                          ),
-                                          hint: Text(
-                                            'Select Month',
-                                            style: TextStyle(
-                                              color: Colors.white.withOpacity(0.8),
-                                            ),
-                                          ),
-                                          value: endSelectedMonth,
-                                          items: month.map((m) {
-                                            return DropdownMenuItem<String>(
-                                              value: m,
-                                              child: Text(
-                                                m,
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            );
-                                          }).toList(),
-                                          onChanged: (val) =>
-                                              setState(() => endSelectedMonth = val),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          AppTextField(
-                            label: "Description",
-                            controller: descriptionController,
-                            maxLines: 3,
-                          ),
-                          SizedBox(height: 15),
-                           if (experiences.isNotEmpty) ...[
-                              Text(
-                                'Added Experiences',
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.9),
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              ...experiences.asMap().entries.map((entry) {
-                                final index = entry.key;
-                                final experience = entry.value;
-
-                                return Container(
-                                  margin: const EdgeInsets.only(bottom: 8),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 12,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              experience['company'],
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              experience['position'],
-                                              style: TextStyle(
-                                                color: Colors.white.withOpacity(
-                                                  0.7,
-                                                ),
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              experience['fromMonth'] ,
-                                              style: TextStyle(
-                                                color: Colors.white.withOpacity(
-                                                  0.7,
-                                                ),
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              experience['fromYear'],
-                                              style: TextStyle(
-                                                color: Colors.white.withOpacity(
-                                                  0.7,
-                                                ),
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              experience['toMonth'] ,
-                                              style: TextStyle(
-                                                color: Colors.white.withOpacity(
-                                                  0.7,
-                                                ),
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              experience['toYear'],
-                                              style: TextStyle( 
-                                                color: Colors.white.withOpacity(
-                                                  0.7,
-                                                ),
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 6),
-                                            Text(
-                                              experience['description'],
-                                              style: TextStyle(
-                                                color: Colors.white.withOpacity(
-                                                  0.7,
-                                                ),
-                                                fontSize: 14,
-                                              ),  
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(
-                                          Icons.close,
-                                          color: Colors.white70,
-                                        ),
-                                        onPressed: () {
-                                          setState(() {
-                                            experiences.removeAt(index);
-                                          });
+                      child: Form(
+                        key: form_Key,
+                        child: Column(
+                          children: [
+                            AppTextField(
+                              label: "Company Name",
+                              controller: companyController,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter a company name';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 12),
+                            AppTextField(
+                              label: "Position/Role",
+                              controller: positionController,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your position or role';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: AppTextField(
+                                        label: "From Year",
+                                        controller: yearController,
+                                        keyboardType: TextInputType.number,
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'Please enter the starting year';
+                                          }
+                                          return null;
                                         },
                                       ),
-                                    ],
-                                  ),
-                                );
-                              }
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(
+                                            color: Colors.white.withOpacity(0.3),
+                                          ),
+                                        ),
+                                        child: DropdownButtonHideUnderline(
+                                          child: DropdownButton2<String>(
+                                            isExpanded: true,
+                                            dropdownStyleData: DropdownStyleData(
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(14),
+                                                gradient: const LinearGradient(
+                                                  colors: [
+                                                    Color.fromARGB(255, 152, 146, 244),
+                                                    Color(0xffe4d8fd),
+                                                    Color(0xff9b8fff),
+                                                  ],
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                ),
+                                              ),
+                                            ),
+                                            hint: Text(
+                                              'Select Month',
+                                              style: TextStyle(
+                                                color: Colors.white.withOpacity(0.8),
+                                              ),
+                                            ),
+                                            value: selectedMonth,
+                                            items: month.map((m) {
+                                              return DropdownMenuItem<String>(
+                                                value: m,
+                                                child: Text(
+                                                  m,
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              );
+                                            }).toList(),
+                                            onChanged: (val) =>
+                                                setState(() => selectedMonth = val),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: AppTextField(
+                                        label: " To Year",
+                                        controller: endYearController,
+                                        keyboardType: TextInputType.number,
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'Please enter the ending year';
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(
+                                            color: Colors.white.withOpacity(0.3),
+                                          ),
+                                        ),
+                                        child: DropdownButtonHideUnderline(
+                                          child: DropdownButton2<String>(
+                                            isExpanded: true,
+                                            dropdownStyleData: DropdownStyleData(
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(14),
+                                                gradient: const LinearGradient(
+                                                  colors: [
+                                                    Color.fromARGB(255, 152, 146, 244),
+                                                    Color(0xffe4d8fd),
+                                                    Color(0xff9b8fff),
+                                                  ],
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                ),
+                                              ),
+                                            ),
+                                            hint: Text(
+                                              'Select Month',
+                                              style: TextStyle(
+                                                color: Colors.white.withOpacity(0.8),
+                                              ),
+                                            ),
+                                            value: endSelectedMonth,
+                                            items: month.map((m) {
+                                              return DropdownMenuItem<String>(
+                                                value: m,
+                                                child: Text(
+                                                  m,
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              );
+                                            }).toList(),
+                                            onChanged: (val) =>
+                                                setState(() => endSelectedMonth = val),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
+                            const SizedBox(height: 12),
+                            AppTextField(
+                              label: "Description",
+                              controller: descriptionController,
+                              maxLines: 3,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter a description';
+                                }
+                                return null;
+                              },
+                            ),
+                            SizedBox(height: 15),
+                             if (experiences.isNotEmpty) ...[
+                                Text(
+                                  'Added Experiences',
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.9),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                ...experiences.asMap().entries.map((entry) {
+                                  final index = entry.key;
+                                  final experience = entry.value;
+                        
+                                  return Container(
+                                    margin: const EdgeInsets.only(bottom: 8),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 12,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                experience['company'],
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                experience['position'],
+                                                style: TextStyle(
+                                                  color: Colors.white.withOpacity(
+                                                    0.7,
+                                                  ),
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                             Text(
+                                               experience['fromMonth'] ?? '',
+                                                style: TextStyle(
+                                                  color: Colors.white.withOpacity(
+                                                    0.7,
+                                                  ),
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                experience['fromYear'],
+                                                style: TextStyle(
+                                                  color: Colors.white.withOpacity(
+                                                    0.7,
+                                                  ),
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                             Text(
+                                               experience['toMonth'] ?? '',
+                                                style: TextStyle(
+                                                  color: Colors.white.withOpacity(
+                                                    0.7,
+                                                  ),
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                experience['toYear'],
+                                                style: TextStyle( 
+                                                  color: Colors.white.withOpacity(
+                                                    0.7,
+                                                  ),
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 6),
+                                              Text(
+                                                experience['description'],
+                                                style: TextStyle(
+                                                  color: Colors.white.withOpacity(
+                                                    0.7,
+                                                  ),
+                                                  fontSize: 14,
+                                                ),  
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(
+                                            Icons.close,
+                                            color: Colors.white70,
+                                          ),
+                                          onPressed: () {
+                                            _deleteExperience(experience['id'], index);
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }
+                              ),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
                     ),
                   ),
@@ -491,7 +554,18 @@ class _ExperienceState extends State<Experience> {
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: addExperience,
+                        onTap: () {
+                          if (form_Key.currentState!.validate()) {
+                            _addExperience();
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    'Please fill all required fields correctly.'),
+                              ),
+                            );
+                          }
+                        },
                         splashFactory: InkRipple.splashFactory,
                         splashColor: Colors.white.withOpacity(0.2),
                         highlightColor: Colors.white.withOpacity(0.1),

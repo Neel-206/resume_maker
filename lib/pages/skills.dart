@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:resume_maker/widgets/app_text_field.dart';
+import 'package:resume_maker/services/database_helper.dart';
 
 class Skills extends StatefulWidget {
   final VoidCallback? onNext;
@@ -12,9 +13,11 @@ class Skills extends StatefulWidget {
 }
 
 class _SkillsState extends State<Skills> {
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController skillNameController = TextEditingController();
   final List<Map<String, dynamic>> skills = [];
   String selectedProficiency = 'Intermediate';
+  final dbHelper = DatabaseHelper.instance;
 
   final List<String> proficiencyLevels = [
     'Beginner',
@@ -23,17 +26,60 @@ class _SkillsState extends State<Skills> {
     'Expert',
   ];
 
-  void addSkill() {
-    if (skillNameController.text.trim().isNotEmpty) {
+  @override
+  void initState() {
+    super.initState();
+    _loadSkills();
+  }
+
+  void _loadSkills() async {
+    final allRows = await dbHelper.queryAllRows(DatabaseHelper.tableSkills);
+    setState(() {
+      skills.clear();
+      skills.addAll(allRows);
+    });
+  }
+
+  void _addSkill() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      final newSkillName = skillNameController.text.trim();
+      final isDuplicate = skills.any(
+          (skill) => skill['name'].toString().toLowerCase() == newSkillName.toLowerCase());
+
+      if (isDuplicate) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('This skill has already been added.')),
+          );
+        }
+        return;
+      }
+
+      Map<String, dynamic> row = {
+        'name': newSkillName,
+        'proficiency': selectedProficiency,
+      };
+      final id = await dbHelper.insert(DatabaseHelper.tableSkills, row);
+      row['id'] = id;
       setState(() {
-        skills.add({
-          'name': skillNameController.text.trim(),
-          'proficiency': selectedProficiency,
-        });
+        skills.add(row);
         skillNameController.clear();
         selectedProficiency = 'Intermediate';
       });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Skill added successfully!')),
+        );
+      }
     }
+  }
+
+  void _deleteSkill(int id, int index) async {
+    await dbHelper.delete(DatabaseHelper.tableSkills, id);
+    setState(() {
+      skills.removeAt(index);
+    });
   }
 
   @override
@@ -110,160 +156,167 @@ class _SkillsState extends State<Skills> {
                           end: Alignment.bottomRight,
                         ),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: AppTextField(
-                                  label: 'Skill',
-                                  controller: skillNameController,
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: AppTextField(
+                                    label: 'Skill',
+                                    controller: skillNameController,
+                                    validator: (value) {
+                                      if (value == null || value.trim().isEmpty) {
+                                        return 'Please enter a skill';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                SizedBox(
+                                  width: 140,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: Colors.white.withOpacity(0.3),
+                                      ),
+                                    ),
+                                    child: DropdownButtonHideUnderline(
+                                      child: DropdownButton2<String>(
+                                        isExpanded: true,
+                                        dropdownStyleData: DropdownStyleData(
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              14,
+                                            ),
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Color.fromARGB(
+                                                  255,
+                                                  152,
+                                                  146,
+                                                  244,
+                                                ),
+                                                Color(0xffe4d8fd),
+                                                Color(0xff9b8fff),
+                                              ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                          ),
+                                        ),
+                                        hint: Text(
+                                          'Level',
+                                          style: TextStyle(
+                                            color: Colors.white.withOpacity(0.8),
+                                          ),
+                                        ),
+                                        value: selectedProficiency,
+                                        items: proficiencyLevels.map((m) {
+                                          return DropdownMenuItem<String>(
+                                            value: m,
+                                            child: Text(
+                                              m,
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          );
+                                        }).toList(),
+                                        onChanged: (val) {
+                                          if (val != null) {
+                                            setState(
+                                              () => selectedProficiency = val,
+                                            );
+                                          }
+                                        },
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 24),
+                            if (skills.isNotEmpty) ...[
+                              Text(
+                                'Added Skills',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.9),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              const SizedBox(width: 12),
-                              SizedBox(
-                                width: 140,
-                                child: Container(
+                              const SizedBox(height: 12),
+                              ...skills.asMap().entries.map((entry) {
+                                final index = entry.key;
+                                final skill = entry.value;
+                                return Container(
+                                  margin: const EdgeInsets.only(bottom: 8),
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 4,
+                                    horizontal: 16,
+                                    vertical: 12,
                                   ),
                                   decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: Colors.white.withOpacity(0.3),
-                                    ),
                                   ),
-                                  child: DropdownButtonHideUnderline(
-                                    child: DropdownButton2<String>(
-                                      isExpanded: true,
-                                      dropdownStyleData: DropdownStyleData(
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                            14,
-                                          ),
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              Color.fromARGB(
-                                                255,
-                                                152,
-                                                146,
-                                                244,
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              skill['name'],
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w500,
                                               ),
-                                              Color(0xffe4d8fd),
-                                              Color(0xff9b8fff),
-                                            ],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              skill['proficiency'],
+                                              style: TextStyle(
+                                                color: Colors.white.withOpacity(
+                                                  0.7,
+                                                ),
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                      hint: Text(
-                                        'Level',
-                                        style: TextStyle(
-                                          color: Colors.white.withOpacity(0.8),
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.close,
+                                          color: Colors.white70,
                                         ),
+                                        onPressed: () {
+                                          _deleteSkill(skill['id'], index);
+                                        },
                                       ),
-                                      value: selectedProficiency,
-                                      items: proficiencyLevels.map((m) {
-                                        return DropdownMenuItem<String>(
-                                          value: m,
-                                          child: Text(
-                                            m,
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        );
-                                      }).toList(),
-                                      onChanged: (val) {
-                                        if (val != null) {
-                                          setState(
-                                            () => selectedProficiency = val,
-                                          );
-                                        }
-                                      },
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                      ),
-                                    ),
+                                    ],
                                   ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 24),
-                          if (skills.isNotEmpty) ...[
-                            Text(
-                              'Added Skills',
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.9),
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            ...skills.asMap().entries.map((entry) {
-                              final index = entry.key;
-                              final skill = entry.value;
-                              return Container(
-                                margin: const EdgeInsets.only(bottom: 8),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 12,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            skill['name'],
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            skill['proficiency'],
-                                            style: TextStyle(
-                                              color: Colors.white.withOpacity(
-                                                0.7,
-                                              ),
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.close,
-                                        color: Colors.white70,
-                                      ),
-                                      onPressed: () {
-                                        setState(() {
-                                          skills.removeAt(index);
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
+                                );
+                              }).toList(),
 
-                            const SizedBox(height: 24),
+                              const SizedBox(height: 24),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
                     ),
                   ),
@@ -346,7 +399,7 @@ class _SkillsState extends State<Skills> {
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: addSkill,
+                        onTap: _addSkill,
                         splashFactory: InkRipple.splashFactory,
                         splashColor: Colors.white.withOpacity(0.2),
                         highlightColor: Colors.white.withOpacity(0.1),

@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:resume_maker/widgets/app_text_field.dart';
+import 'package:resume_maker/services/database_helper.dart';
 
 class Languages extends StatefulWidget {
   final VoidCallback? onNext;
@@ -13,26 +14,65 @@ class Languages extends StatefulWidget {
 
 class _LanguagesState extends State<Languages> {
   final TextEditingController languageController = TextEditingController();
-  final List<Map<String, dynamic>> Languages = [];
+  final List<Map<String, dynamic>> languagesList = [];
+  final dbHelper = DatabaseHelper.instance;
   bool canRead = false;
   bool canWrite = false;
   bool canSpeak = false;
 
-  void addLanguage() {
-    if (languageController.text.trim().isNotEmpty) {
-      setState(() {
-        Languages.add({
-          'name': languageController.text.trim(),
-          'read': canRead,
-          'write': canWrite,
-          'speak': canSpeak,
+  @override
+  void initState() {
+    super.initState();
+    _loadLanguages();
+  }
+
+  void _loadLanguages() async {
+    final allRows = await dbHelper.queryAllRows(DatabaseHelper.tableLanguages);
+    setState(() {
+      languagesList.clear();
+      for (var row in allRows) {
+        languagesList.add({
+          'id': row['id'],
+          'name': row['name'],
+          'read': row['canRead'] == 1,
+          'write': row['canWrite'] == 1,
+          'speak': row['canSpeak'] == 1,
         });
+      }
+    });
+  }
+
+  void _addLanguage() async {
+    if (languageController.text.trim().isNotEmpty) {
+      Map<String, dynamic> row = {
+        'name': languageController.text.trim(),
+        'canRead': canRead ? 1 : 0,
+        'canWrite': canWrite ? 1 : 0,
+        'canSpeak': canSpeak ? 1 : 0,
+      };
+      final id = await dbHelper.insert(DatabaseHelper.tableLanguages, row);
+      row['id'] = id;
+      setState(() {
+        languagesList.add(row..['read'] = canRead..['write'] = canWrite..['speak'] = canSpeak);
         languageController.clear();
         canRead = false;
         canWrite = false;
         canSpeak = false;
       });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Language added successfully!')),
+        );
+      }
     }
+  }
+
+  void _deleteLanguage(int id, int index) async {
+    await dbHelper.delete(DatabaseHelper.tableLanguages, id);
+    setState(() {
+      languagesList.removeAt(index);
+    });
   }
 
   @override
@@ -201,8 +241,8 @@ class _LanguagesState extends State<Languages> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  if (Languages.isNotEmpty) ...[
-                    for (var language in Languages)
+                  if (languagesList.isNotEmpty) ...[
+                    for (var i = 0; i < languagesList.length; i++)
                       ClipRRect(
                         borderRadius: BorderRadius.circular(25),
                         child: BackdropFilter(
@@ -240,7 +280,7 @@ class _LanguagesState extends State<Languages> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    language['name'],
+                                    languagesList[i]['name'],
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 16,
@@ -249,7 +289,7 @@ class _LanguagesState extends State<Languages> {
                                 ),
                                 Row(
                                   children: [
-                                    if (language['read'])
+                                    if (languagesList[i]['read'])
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(7),
                                         child: BackdropFilter(
@@ -306,7 +346,7 @@ class _LanguagesState extends State<Languages> {
                                         ),
                                       ),
                                       SizedBox(width: 5,),
-                                    if (language['write'])
+                                    if (languagesList[i]['write'])
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(7),
                                         child: BackdropFilter(
@@ -363,7 +403,7 @@ class _LanguagesState extends State<Languages> {
                                         ),
                                       ),
                                       SizedBox(width: 5,),
-                                    if (language['speak'])
+                                    if (languagesList[i]['speak'])
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(7),
                                         child: BackdropFilter(
@@ -422,7 +462,7 @@ class _LanguagesState extends State<Languages> {
                                     IconButton(
                                       onPressed: () {
                                         setState(() {
-                                          Languages.remove(language);
+                                          _deleteLanguage(languagesList[i]['id'], i);
                                         });
                                       },
                                       icon: const Icon(
@@ -452,8 +492,15 @@ class _LanguagesState extends State<Languages> {
             Expanded(
               child: ElevatedButton(
                 onPressed: () async {
-                  if (widget.onNext != null) {
-                    widget.onNext!();
+                  if(languagesList.isNotEmpty) {
+                    widget.onNext?.call();
+                  }else{
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content:
+                            Text('Please add at least one language.'),
+                      ),
+                    );
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -518,7 +565,7 @@ class _LanguagesState extends State<Languages> {
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: addLanguage,
+                        onTap: _addLanguage,
                         splashFactory: InkRipple.splashFactory,
                         splashColor: Colors.white.withOpacity(0.2),
                         highlightColor: Colors.white.withOpacity(0.1),

@@ -1,7 +1,9 @@
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:resume_maker/pages/choose_template.dart';
 import 'package:signature/signature.dart';
+import 'package:resume_maker/services/database_helper.dart';
 
 class SignaturePage extends StatefulWidget {
   final VoidCallback? onNext;
@@ -13,6 +15,7 @@ class SignaturePage extends StatefulWidget {
 
 class _SignaturePageState extends State<SignaturePage> {
   late SignatureController controller;
+  final dbHelper = DatabaseHelper.instance;
 
   @override
   void initState() {
@@ -22,6 +25,34 @@ class _SignaturePageState extends State<SignaturePage> {
       penColor: Colors.white,
       exportBackgroundColor: Colors.transparent,
     );
+    _loadSignature();
+  }
+
+  void _loadSignature() async {
+    final allRows = await dbHelper.queryAllRows(DatabaseHelper.tableSignature);
+    if (allRows.isNotEmpty && allRows.first['signature'] != null) {
+      // ignore: unused_local_variable
+      final signatureBytes = allRows.first['signature'] as Uint8List;
+    }
+  }
+
+  Future<void> _saveSignature() async {
+    if (controller.isNotEmpty) {
+      final Uint8List? data = await controller.toPngBytes();
+      if (data != null) {
+        final allRows = await dbHelper.queryAllRows(DatabaseHelper.tableSignature);
+        for (var row in allRows) {
+          await dbHelper.delete(DatabaseHelper.tableSignature, row['id']);
+        }
+        await dbHelper.insert(DatabaseHelper.tableSignature, {'signature': data});
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Signature saved successfully!')),
+          );
+        }
+      }
+    }
   }
 
   @override
@@ -138,15 +169,18 @@ class _SignaturePageState extends State<SignaturePage> {
             Expanded(
               child: ElevatedButton(
                 onPressed: () async {
-                  // if (controller.isEmpty) {
-                  //   ScaffoldMessenger.of(context).showSnackBar(
-                  //     const SnackBar(
-                  //       content: Text('Please provide your signature'),
-                  //     ),
-                  //   );
-                  //   return;
-                  // }
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) =>  ChooseTemplate(),));
+                  if (controller.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please provide your signature to continue.'),
+                      ),
+                    );
+                    return;
+                  }
+                  await _saveSignature();
+                  if (!mounted) return;
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const ChooseTemplate()));
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 62),

@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:resume_maker/widgets/app_text_field.dart';
+import 'package:resume_maker/services/database_helper.dart';
 
 class Declaration extends StatefulWidget {
   final VoidCallback? onNext;
@@ -12,7 +13,43 @@ class Declaration extends StatefulWidget {
 }
 
 class _DeclarationState extends State<Declaration> {
-  final TextEditingController DeclarationCountroller = TextEditingController();
+  final TextEditingController declarationController = TextEditingController();
+  final dbHelper = DatabaseHelper.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDeclarationData();
+  }
+
+  void _loadDeclarationData() async {
+    final allRows = await dbHelper.queryAllRows(DatabaseHelper.tableDeclaration);
+    if (allRows.isNotEmpty) {
+      setState(() {
+        declarationController.text = allRows.first['declarationText'] ?? '';
+      });
+    }
+  }
+
+  void _saveDeclarationData() async {
+    Map<String, dynamic> row = {
+      'declarationText': declarationController.text,
+    };
+
+    final allRows = await dbHelper.queryAllRows(DatabaseHelper.tableDeclaration);
+    if (allRows.isEmpty) {
+      await dbHelper.insert(DatabaseHelper.tableDeclaration, row);
+    } else {
+      row['id'] = allRows.first['id'];
+      await dbHelper.update(DatabaseHelper.tableDeclaration, row);
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Declaration saved successfully!')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +124,7 @@ class _DeclarationState extends State<Declaration> {
                         child: Column(
                           children: [
                             AppTextField(
-                              controller: DeclarationCountroller,
+                              controller: declarationController,
                               label: 'Declaration',
                               maxLines: 5,
                             ),
@@ -106,7 +143,10 @@ class _DeclarationState extends State<Declaration> {
       floatingActionButton: SizedBox(
         width: MediaQuery.of(context).size.width * 0.9,
         child: ElevatedButton(
-          onPressed: widget.onNext,
+          onPressed: () {
+            _saveDeclarationData();
+            widget.onNext?.call();
+          },
           child: Text('Next'),
           style: ElevatedButton.styleFrom(
             minimumSize: Size(double.infinity, 62),

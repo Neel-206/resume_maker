@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:resume_maker/widgets/app_text_field.dart';
+import 'package:resume_maker/services/database_helper.dart';
 
 class Aboutme extends StatefulWidget {
   final VoidCallback? onNext;
@@ -15,6 +16,43 @@ class Aboutme extends StatefulWidget {
 class _AboutmeState extends State<Aboutme> {
   final TextEditingController aboutController = TextEditingController();
   final form_Key = GlobalKey<FormState>();
+  final dbHelper = DatabaseHelper.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAboutData();
+  }
+
+  void _loadAboutData() async {
+    final allRows = await dbHelper.queryAllRows(DatabaseHelper.tableAbout);
+    if (allRows.isNotEmpty) {
+      setState(() {
+        aboutController.text = allRows.first['aboutText'] ?? '';
+      });
+    }
+  }
+
+  void _saveAboutData() async {
+    Map<String, dynamic> row = {
+      'aboutText': aboutController.text,
+    };
+
+    final allRows = await dbHelper.queryAllRows(DatabaseHelper.tableAbout);
+    if (allRows.isEmpty) {
+      await dbHelper.insert(DatabaseHelper.tableAbout, row);
+    } else {
+      row['id'] = allRows.first['id'];
+      await dbHelper.update(DatabaseHelper.tableAbout, row);
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('About me saved successfully!')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,7 +133,7 @@ class _AboutmeState extends State<Aboutme> {
                                 maxLines: 5,
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return 'Please enter your first name';
+                                    return 'Please enter your About yourself';
                                   }
                                   return null;
                                 },
@@ -119,6 +157,7 @@ class _AboutmeState extends State<Aboutme> {
 
           onPressed: (){
             if (form_Key.currentState?.validate() ?? false) {
+              _saveAboutData();
               widget.onNext?.call();
             } else {
               ScaffoldMessenger.of(context).showSnackBar(

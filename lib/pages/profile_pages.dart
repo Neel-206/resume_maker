@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:resume_maker/services/database_helper.dart';
 
 class profilepage extends StatefulWidget {
   final VoidCallback? onNext;
@@ -22,6 +23,30 @@ class _profilepageState extends State<profilepage> {
   final TextEditingController pincodeController = TextEditingController();
 
   bool showAdditionalFields = false;
+  final dbHelper = DatabaseHelper.instance;
+  final TextInputType? keyboardType = null;
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileData();
+  }
+
+  void _loadProfileData() async {
+    final allRows = await dbHelper.queryAllRows(DatabaseHelper.tableProfile);
+    if (allRows.isNotEmpty) {
+      final profile = allRows.first;
+      setState(() {
+        firstNameController.text = profile['firstName'] ?? '';
+        lastNameController.text = profile['lastName'] ?? '';
+        emailController.text = profile['email'] ?? '';
+        phoneController.text = profile['phone'] ?? '';
+        countryController.text = profile['country'] ?? '';
+        cityController.text = profile['city'] ?? '';
+        addressController.text = profile['address'] ?? '';
+        pincodeController.text = profile['pincode'] ?? '';
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -116,7 +141,7 @@ class _profilepageState extends State<profilepage> {
                                   return 'Please enter your first name';
                                 }
                                 return null;
-                              },
+                              }, keyboardType: TextInputType.text,
                             ),
                             const SizedBox(height: 12),
                             _buildTextField(
@@ -128,6 +153,7 @@ class _profilepageState extends State<profilepage> {
                                 }
                                 return null;
                               },
+                              keyboardType: TextInputType.text,
                             ),
                             const SizedBox(height: 12),
                             _buildTextField(
@@ -144,11 +170,13 @@ class _profilepageState extends State<profilepage> {
                                 }
                                 return null;
                               },
+                              keyboardType: TextInputType.emailAddress,
                             ),
                             const SizedBox(height: 12),
                             _buildTextField(
                               'Phone Number',
                               phoneController,
+                              keyboardType: TextInputType.phone,    
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter your phone number';
@@ -201,22 +229,26 @@ class _profilepageState extends State<profilepage> {
                                           const SizedBox(height: 10),
                                           buildAdditionalFields(
                                             'Country',
-                                            countryController,
+                                            countryController, keyboardType: TextInputType.text,
                                           ),
                                           const SizedBox(height: 12),
                                           buildAdditionalFields(
                                             'City',
                                             cityController,
+                                            keyboardType: TextInputType.text,
                                           ),
                                           const SizedBox(height: 12),
                                           buildAdditionalFields(
                                             'Address',
                                             addressController,
+                                            keyboardType: TextInputType.text,
                                           ),
                                           const SizedBox(height: 12),
                                           buildAdditionalFields(
                                             'Pincode',
                                             pincodeController,
+                                            keyboardType: TextInputType.number,
+                               
                                           ),
                                           const SizedBox(height: 5),
                                         ],
@@ -241,7 +273,8 @@ class _profilepageState extends State<profilepage> {
         child: ElevatedButton(
           onPressed: () {
             if (form_Key.currentState?.validate() ?? false) {
-              widget.onNext?.call();
+              _saveProfileData();
+              widget.onNext?.call(); // Navigate to next page
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content:Text('Please fill first four required fields correctly.')),
@@ -270,11 +303,40 @@ class _profilepageState extends State<profilepage> {
     );
   }
 
+  void _saveProfileData() async {
+    Map<String, dynamic> row = {
+      'firstName': firstNameController.text,
+      'lastName': lastNameController.text,
+      'email': emailController.text,
+      'phone': phoneController.text,
+      'country': countryController.text,
+      'city': cityController.text,
+      'address': addressController.text,
+      'pincode': pincodeController.text,
+    };
+
+    final allRows = await dbHelper.queryAllRows(DatabaseHelper.tableProfile);
+    if (allRows.isEmpty) {
+      await dbHelper.insert(DatabaseHelper.tableProfile, row);
+    } else {
+      // There should only be one profile, so we update it.
+      row['id'] = allRows.first['id'];
+      await dbHelper.update(DatabaseHelper.tableProfile, row);
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Profile data saved successfully!')),
+      );
+    }
+  }
+
   Widget _buildTextField(String label, TextEditingController controller,
-      {String? Function(String?)? validator}) {
+      {String? Function(String?)? validator, required TextInputType keyboardType}) {
     return TextFormField(
       controller: controller,
       validator: validator,
+      keyboardType: keyboardType,
       decoration: InputDecoration(
         labelText: ' $label',
         labelStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
@@ -292,9 +354,10 @@ class _profilepageState extends State<profilepage> {
     );
   }
 
-  Widget buildAdditionalFields(String label, TextEditingController controller) {
+  Widget buildAdditionalFields(String label, TextEditingController controller, {required TextInputType keyboardType}) {
     return TextFormField(
       controller: controller,
+      keyboardType: keyboardType,
       decoration: InputDecoration(
         labelText: ' $label',
         labelStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
