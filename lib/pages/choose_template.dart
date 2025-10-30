@@ -1,5 +1,11 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:resume_maker/pages/pdf_preview_page.dart';
+import 'package:resume_maker/services/database_helper.dart';
+import 'package:resume_maker/services/pdf_service.dart';
+import 'dart:io';
 
 class ChooseTemplate extends StatefulWidget {
   const ChooseTemplate({super.key});
@@ -16,12 +22,26 @@ class Resumetemplate {
 }
 
 class _ChooseTemplateState extends State<ChooseTemplate> {
-  final List<Resumetemplate> Templates = [
-    Resumetemplate('Modern', 'images/template1.avif'),
-    Resumetemplate('classic', 'images/template3.jpg'),
-    Resumetemplate('professional', 'images/template4.jpeg'),
-    Resumetemplate('Normal', 'images/template2.jpg'),
+  final dbHelper = DatabaseHelper.instance;
+  bool isLoading = false;
+
+  final List<Resumetemplate> templates = [
+    Resumetemplate('Classic', 'images/template1.png'),
+    Resumetemplate('Modern', 'images/template2.png'),
   ];
+
+  Future<void> _generateAndShowPdf(BuildContext context, String templateName) async {
+    setState(() => isLoading = true);
+    final pdfService = PdfService();
+    final Uint8List pdfBytes = await pdfService.createResume(templateName);
+    final output = await getTemporaryDirectory();
+    final file = File("${output.path}/resume.pdf");
+    await file.writeAsBytes(pdfBytes);
+    setState(() => isLoading = false);
+    if (!mounted) return;
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => PdfPreviewPage(path: file.path)));
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -30,7 +50,7 @@ class _ChooseTemplateState extends State<ChooseTemplate> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xff5f56ee), Color(0xffe4d8fd), Color(0xff9b8fff)],
             begin: Alignment.topLeft,
@@ -44,7 +64,7 @@ class _ChooseTemplateState extends State<ChooseTemplate> {
             child: Column(
               children: [
                 Text(
-                  'Choose Templetes',
+                  'Choose Templates',
                   style: GoogleFonts.poppins(
                     textStyle: TextStyle(
                       color: Colors.white,
@@ -58,7 +78,7 @@ class _ChooseTemplateState extends State<ChooseTemplate> {
                   width: screenWidth * 0.33,
                   height: 5,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
+                    gradient: const LinearGradient(
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                       colors: [
@@ -70,34 +90,30 @@ class _ChooseTemplateState extends State<ChooseTemplate> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                SizedBox(height: screenHeight * 0.04),
+                const SizedBox(height: 20),
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: screenWidth * 0.04
-                    ),
+                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
                     child: GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 16,
-                            crossAxisSpacing: 16,
-                            childAspectRatio: 0.85
-                          ),
-                      itemCount: Templates.length,
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 16,
+                        crossAxisSpacing: 16,
+                        childAspectRatio: 0.7,
+                      ),
+                      itemCount: templates.length,
                       itemBuilder: (BuildContext context, int index) {
-                        final template = Templates[index];
+                        final template = templates[index];
                         return InkWell(
                           onTap: () {
-
+                            _generateAndShowPdf(context, template.name);
                           },
                           child: Container(
                             padding: EdgeInsets.symmetric(
-                              //horizontal: screenWidth * 0.10,
                               vertical: screenHeight * 0.018,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.25),
+                              color: Colors.white.withOpacity(0.15),
                               borderRadius: BorderRadius.circular(36),
                               border: Border.all(
                                 color: Colors.white.withOpacity(0.3),
@@ -107,12 +123,12 @@ class _ChooseTemplateState extends State<ChooseTemplate> {
                                 BoxShadow(
                                   color: Colors.deepPurple.withOpacity(0.2),
                                   blurRadius: 30,
-                                  offset: Offset(0, 12),
+                                  offset: const Offset(0, 12),
                                 ),
                               ],
                               gradient: LinearGradient(
                                 colors: [
-                                  Colors.white.withOpacity(0.40),
+                                  Colors.white.withOpacity(0.25),
                                   Colors.white.withOpacity(0.15),
                                 ],
                                 begin: Alignment.topLeft,
@@ -123,28 +139,35 @@ class _ChooseTemplateState extends State<ChooseTemplate> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Expanded(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(13),
-                                      border: Border.all(
-                                        color: Colors.white.withOpacity(0.5),
-                                        width: 1.5,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(24),
+                                        border: Border.all(
+                                          color: Colors.white.withOpacity(0.5),
+                                          width: 1.5,
+                                        ),
                                       ),
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: Image.asset(
-                                        template.thumbnail,
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(22),
+                                        child: Image.asset(
+                                          template.thumbnail,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (context, error, stackTrace) =>
+                                              const Center(child: Icon(Icons.image_not_supported, color: Colors.white70)),
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                                SizedBox(height: 8),
+                                const SizedBox(height: 8),
                                 Text(
                                   template.name,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
+                                    fontSize: 16,
+                                    color: Colors.white,
                                   ),
                                 ),
                               ],

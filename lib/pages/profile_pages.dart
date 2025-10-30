@@ -15,12 +15,15 @@ class _profilepageState extends State<profilepage> {
 
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
+  final TextEditingController jobTitleController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController countryController = TextEditingController();
   final TextEditingController cityController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController pincodeController = TextEditingController();
+  final TextEditingController linkedinController = TextEditingController();
+  final TextEditingController githubController = TextEditingController();
 
   bool showAdditionalFields = false;
   final dbHelper = DatabaseHelper.instance;
@@ -38,6 +41,7 @@ class _profilepageState extends State<profilepage> {
       setState(() {
         firstNameController.text = profile['firstName'] ?? '';
         lastNameController.text = profile['lastName'] ?? '';
+        jobTitleController.text = profile['jobTitle'] ?? '';
         emailController.text = profile['email'] ?? '';
         phoneController.text = profile['phone'] ?? '';
         countryController.text = profile['country'] ?? '';
@@ -52,6 +56,7 @@ class _profilepageState extends State<profilepage> {
   void dispose() {
     firstNameController.dispose();
     lastNameController.dispose();
+    jobTitleController.dispose();
     emailController.dispose();
     phoneController.dispose();
     countryController.dispose();
@@ -141,7 +146,8 @@ class _profilepageState extends State<profilepage> {
                                   return 'Please enter your first name';
                                 }
                                 return null;
-                              }, keyboardType: TextInputType.text,
+                              },
+                              keyboardType: TextInputType.text,
                             ),
                             const SizedBox(height: 12),
                             _buildTextField(
@@ -157,14 +163,27 @@ class _profilepageState extends State<profilepage> {
                             ),
                             const SizedBox(height: 12),
                             _buildTextField(
+                              'Job Title',
+                              jobTitleController,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your job title';
+                                }
+                                return null;
+                              },
+                              keyboardType: TextInputType.text,
+                            ),
+                            const SizedBox(height: 12),
+                            _buildTextField(
                               'Email',
                               emailController,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter your email';
                                 }
-                                final emailRegex =
-                                    RegExp(r'^[^@]+@[^@]+\.[^@]+');
+                                final emailRegex = RegExp(
+                                  r'^[^@]+@[^@]+\.[^@]+',
+                                );
                                 if (!emailRegex.hasMatch(value)) {
                                   return 'Enter a valid email';
                                 }
@@ -176,7 +195,7 @@ class _profilepageState extends State<profilepage> {
                             _buildTextField(
                               'Phone Number',
                               phoneController,
-                              keyboardType: TextInputType.phone,    
+                              keyboardType: TextInputType.phone,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter your phone number';
@@ -205,8 +224,7 @@ class _profilepageState extends State<profilepage> {
                                     ),
                                   ),
                                   AnimatedRotation(
-                                    duration:
-                                        const Duration(milliseconds: 600),
+                                    duration: const Duration(milliseconds: 600),
                                     turns: showAdditionalFields ? 0.5 : 0.0,
                                     child: Icon(
                                       Icons.keyboard_arrow_down_rounded,
@@ -224,12 +242,15 @@ class _profilepageState extends State<profilepage> {
                                     ? Column(
                                         children: [
                                           Divider(
-                                            color: Colors.white.withOpacity(0.3),
+                                            color: Colors.white.withOpacity(
+                                              0.3,
+                                            ),
                                           ),
                                           const SizedBox(height: 10),
                                           buildAdditionalFields(
                                             'Country',
-                                            countryController, keyboardType: TextInputType.text,
+                                            countryController,
+                                            keyboardType: TextInputType.text,
                                           ),
                                           const SizedBox(height: 12),
                                           buildAdditionalFields(
@@ -248,9 +269,20 @@ class _profilepageState extends State<profilepage> {
                                             'Pincode',
                                             pincodeController,
                                             keyboardType: TextInputType.number,
-                               
                                           ),
-                                          const SizedBox(height: 5),
+                                          const SizedBox(height: 12),
+                                          buildAdditionalFields(
+                                            'Linkdin',
+                                            linkedinController,
+                                            keyboardType: TextInputType.url,
+                                          ),
+                                          const SizedBox(height: 12),
+                                          buildAdditionalFields(
+                                            'Github',
+                                            githubController,
+                                            keyboardType: TextInputType.url,
+                                          ),
+                                          const SizedBox(height: 10),
                                         ],
                                       )
                                     : SizedBox.shrink(),
@@ -277,7 +309,9 @@ class _profilepageState extends State<profilepage> {
               widget.onNext?.call(); // Navigate to next page
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content:Text('Please fill first four required fields correctly.')),
+                SnackBar(
+                  content: Text('Please fill all required fields correctly.'),
+                ),
               );
             }
           },
@@ -307,6 +341,7 @@ class _profilepageState extends State<profilepage> {
     Map<String, dynamic> row = {
       'firstName': firstNameController.text,
       'lastName': lastNameController.text,
+      'jobTitle': jobTitleController.text,
       'email': emailController.text,
       'phone': phoneController.text,
       'country': countryController.text,
@@ -331,8 +366,12 @@ class _profilepageState extends State<profilepage> {
     }
   }
 
-  Widget _buildTextField(String label, TextEditingController controller,
-      {String? Function(String?)? validator, required TextInputType keyboardType}) {
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller, {
+    String? Function(String?)? validator,
+    required TextInputType keyboardType,
+  }) {
     return TextFormField(
       controller: controller,
       validator: validator,
@@ -354,7 +393,11 @@ class _profilepageState extends State<profilepage> {
     );
   }
 
-  Widget buildAdditionalFields(String label, TextEditingController controller, {required TextInputType keyboardType}) {
+  Widget buildAdditionalFields(
+    String label,
+    TextEditingController controller, {
+    required TextInputType keyboardType,
+  }) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,

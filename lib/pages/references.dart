@@ -29,7 +29,7 @@ class _ReferencesState extends State<References> {
   }
 
   void _loadReferences() async {
-    final allRows = await dbHelper.queryAllRows(DatabaseHelper.tableReferences);
+    final allRows = await dbHelper.queryAllRows(DatabaseHelper.tableAppReferences);
     setState(() {
       referencesList.clear();
       referencesList.addAll(allRows);
@@ -45,7 +45,7 @@ class _ReferencesState extends State<References> {
         'phone': phoneController.text,
         'email': emailController.text,
       };
-      final id = await dbHelper.insert(DatabaseHelper.tableReferences, row);
+      final id = await dbHelper.insert(DatabaseHelper.tableAppReferences, row);
       row['id'] = id;
       setState(() {
         referencesList.add(row);
@@ -65,7 +65,7 @@ class _ReferencesState extends State<References> {
   }
 
   void _deleteReference(int id, int index) async {
-    await dbHelper.delete(DatabaseHelper.tableReferences, id);
+    await dbHelper.delete(DatabaseHelper.tableAppReferences, id);
     setState(() {
       referencesList.removeAt(index);
     });

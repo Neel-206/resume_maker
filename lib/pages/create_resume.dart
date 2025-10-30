@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:resume_maker/pages/aboutme.dart';
 import 'package:resume_maker/pages/award_page.dart';
-import 'package:resume_maker/pages/declaration_page.dart';
 import 'package:resume_maker/pages/education.dart';
 import 'package:resume_maker/pages/experiance.dart';
 import 'package:resume_maker/pages/hobbie.dart';
@@ -33,7 +32,6 @@ class _CreateResumeState extends State<CreateResume> {
   final List<TabItem> tabs = const [
     TabItem(icon: Icons.account_box_rounded, label: 'Profile'),
     TabItem(icon: Icons.emoji_events_outlined, label: 'Awards'),
-    TabItem(icon: Icons.assignment_outlined, label: 'Declaration'),
     TabItem(icon: Icons.info_outline, label: 'About me'),
     TabItem(icon: Icons.school_outlined, label: 'Education'),
     TabItem(icon: Icons.emoji_emotions_outlined, label: 'Hobbies'),
@@ -45,7 +43,7 @@ class _CreateResumeState extends State<CreateResume> {
     TabItem(icon: Icons.edit, label: 'Signature'),
   ];
   final ScrollController tabScrollController = ScrollController();
-  final List<GlobalKey> tabKeys = List.generate(12, (index) => GlobalKey());
+  final List<GlobalKey> tabKeys = List.generate(11, (index) => GlobalKey());
 
   void animateToTab(int i) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -233,69 +231,62 @@ class _CreateResumeState extends State<CreateResume> {
                         ),
                       );
                     case 2:
-                      return Declaration(
-                        onNext: () => pageController.nextPage(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                        ),
-                      );
-                    case 3:
                       return Aboutme(
                         onNext: () => pageController.nextPage(
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.easeInOut,
                         ),
                       );
-                    case 4:
+                    case 3:
                       return Education(
                         onNext: () => pageController.nextPage(
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.easeInOut,
                         ),
                       );
-                    case 5:
+                    case 4:
                       return Hobbies(
                         onNext: () => pageController.nextPage(
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.easeInOut,
                         ),
                       );
-                    case 6:
+                    case 5:
                       return Languages(
                         onNext: () => pageController.nextPage(
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.easeInOut,
                         ),
                       );
-                    case 7:
+                    case 6:
                       return Projects(
                         onNext: () => pageController.nextPage(
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.easeInOut,
                         ),
                       );
-                    case 8:
+                    case 7:
                       return References(
                         onNext: () => pageController.nextPage(
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.easeInOut,
                         ),
                       );
-                    case 9:
+                    case 8:
                       return Experience(
                         onNext: () => pageController.nextPage(
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.easeInOut,
                         ),
                       );
-                    case 10:
+                    case 9:
                       return Skills(
                         onNext: () => pageController.nextPage(
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.easeInOut,
                         ),
                       );
-                    case 11:
+                    case 10:
                       return SignaturePage();
                     default:
                       return Center(child: Text('Page not found'));
