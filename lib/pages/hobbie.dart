@@ -47,10 +47,12 @@ class _HobbiesState extends State<Hobbies> {
 
   void _loadHobbies() async {
     final allRows = await dbHelper.queryAllRows(DatabaseHelper.tableHobbies);
-    setState(() {
-      hobbiesList.clear();
-      hobbiesList.addAll(allRows);
-    });
+    if (mounted) {
+      setState(() {
+        hobbiesList.clear();
+        hobbiesList.addAll(allRows);
+      });
+    }
   }
 
   void _addHobby() async {

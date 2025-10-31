@@ -37,18 +37,20 @@ class _profilepageState extends State<profilepage> {
   void _loadProfileData() async {
     final allRows = await dbHelper.queryAllRows(DatabaseHelper.tableProfile);
     if (allRows.isNotEmpty) {
-      final profile = allRows.first;
-      setState(() {
-        firstNameController.text = profile['firstName'] ?? '';
-        lastNameController.text = profile['lastName'] ?? '';
-        jobTitleController.text = profile['jobTitle'] ?? '';
-        emailController.text = profile['email'] ?? '';
-        phoneController.text = profile['phone'] ?? '';
-        countryController.text = profile['country'] ?? '';
-        cityController.text = profile['city'] ?? '';
-        addressController.text = profile['address'] ?? '';
-        pincodeController.text = profile['pincode'] ?? '';
-      });
+      if (mounted) {
+        final profile = allRows.first;
+        setState(() {
+          firstNameController.text = profile['firstName'] ?? '';
+          lastNameController.text = profile['lastName'] ?? '';
+          jobTitleController.text = profile['jobTitle'] ?? '';
+          emailController.text = profile['email'] ?? '';
+          phoneController.text = profile['phone'] ?? '';
+          countryController.text = profile['country'] ?? '';
+          cityController.text = profile['city'] ?? '';
+          addressController.text = profile['address'] ?? '';
+          pincodeController.text = profile['pincode'] ?? '';
+        });
+      }
     }
   }
 

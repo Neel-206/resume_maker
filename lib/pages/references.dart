@@ -30,10 +30,12 @@ class _ReferencesState extends State<References> {
 
   void _loadReferences() async {
     final allRows = await dbHelper.queryAllRows(DatabaseHelper.tableAppReferences);
-    setState(() {
-      referencesList.clear();
-      referencesList.addAll(allRows);
-    });
+    if (mounted) {
+      setState(() {
+        referencesList.clear();
+        referencesList.addAll(allRows);
+      });
+    }
   }
 
   void _addReference() async {

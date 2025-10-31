@@ -47,9 +47,11 @@ class _ExperienceState extends State<Experience> {
 
   void _loadExperiences() async {
     final allRows = await dbHelper.queryAllRows(DatabaseHelper.tableExperience);
-    setState(() {
-      experiences.addAll(allRows);
-    });
+    if (mounted) {
+      setState(() {
+        experiences.addAll(allRows);
+      });
+    }
   }
 
   @override

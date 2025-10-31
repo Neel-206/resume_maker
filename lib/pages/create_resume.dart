@@ -9,8 +9,8 @@ import 'package:resume_maker/pages/language.dart';
 import 'package:resume_maker/pages/profile_pages.dart';
 import 'package:resume_maker/pages/projects.dart';
 import 'package:resume_maker/pages/references.dart';
-import 'package:resume_maker/pages/signature.dart';
 import 'package:resume_maker/pages/skills.dart';
+
 
 class TabItem {
   final IconData icon;
@@ -40,7 +40,6 @@ class _CreateResumeState extends State<CreateResume> {
     TabItem(icon: Icons.book_outlined, label: 'References'),
     TabItem(icon: Icons.work_outline, label: 'Experience'),
     TabItem(icon: Icons.code_outlined, label: 'Skills'),
-    TabItem(icon: Icons.edit, label: 'Signature'),
   ];
   final ScrollController tabScrollController = ScrollController();
   final List<GlobalKey> tabKeys = List.generate(11, (index) => GlobalKey());
@@ -286,8 +285,6 @@ class _CreateResumeState extends State<CreateResume> {
                           curve: Curves.easeInOut,
                         ),
                       );
-                    case 10:
-                      return SignaturePage();
                     default:
                       return Center(child: Text('Page not found'));
                   }

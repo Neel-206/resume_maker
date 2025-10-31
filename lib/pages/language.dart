@@ -28,18 +28,20 @@ class _LanguagesState extends State<Languages> {
 
   void _loadLanguages() async {
     final allRows = await dbHelper.queryAllRows(DatabaseHelper.tableLanguages);
-    setState(() {
-      languagesList.clear();
-      for (var row in allRows) {
-        languagesList.add({
-          'id': row['id'],
-          'name': row['name'],
-          'read': row['canRead'] == 1,
-          'write': row['canWrite'] == 1,
-          'speak': row['canSpeak'] == 1,
-        });
-      }
-    });
+    if (mounted) {
+      setState(() {
+        languagesList.clear();
+        for (var row in allRows) {
+          languagesList.add({
+            'id': row['id'],
+            'name': row['name'],
+            'read': row['canRead'] == 1,
+            'write': row['canWrite'] == 1,
+            'speak': row['canSpeak'] == 1,
+          });
+        }
+      });
+    }
   }
 
   void _addLanguage() async {

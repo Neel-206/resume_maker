@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:resume_maker/pages/choose_template.dart';
 import 'package:resume_maker/widgets/app_text_field.dart';
 import 'package:resume_maker/services/database_helper.dart';
 
@@ -34,17 +35,22 @@ class _SkillsState extends State<Skills> {
 
   void _loadSkills() async {
     final allRows = await dbHelper.queryAllRows(DatabaseHelper.tableSkills);
-    setState(() {
-      skills.clear();
-      skills.addAll(allRows);
-    });
+    if (mounted) {
+      setState(() {
+        skills.clear();
+        skills.addAll(allRows);
+      });
+    }
   }
 
   void _addSkill() async {
     if (_formKey.currentState?.validate() ?? false) {
       final newSkillName = skillNameController.text.trim();
       final isDuplicate = skills.any(
-          (skill) => skill['name'].toString().toLowerCase() == newSkillName.toLowerCase());
+        (skill) =>
+            skill['name'].toString().toLowerCase() ==
+            newSkillName.toLowerCase(),
+      );
 
       if (isDuplicate) {
         if (mounted) {
@@ -168,7 +174,8 @@ class _SkillsState extends State<Skills> {
                                     label: 'Skill',
                                     controller: skillNameController,
                                     validator: (value) {
-                                      if (value == null || value.trim().isEmpty) {
+                                      if (value == null ||
+                                          value.trim().isEmpty) {
                                         return 'Please enter a skill';
                                       }
                                       return null;
@@ -216,7 +223,9 @@ class _SkillsState extends State<Skills> {
                                         hint: Text(
                                           'Level',
                                           style: TextStyle(
-                                            color: Colors.white.withOpacity(0.8),
+                                            color: Colors.white.withOpacity(
+                                              0.8,
+                                            ),
                                           ),
                                         ),
                                         value: selectedProficiency,
@@ -334,7 +343,9 @@ class _SkillsState extends State<Skills> {
               child: ElevatedButton(
                 onPressed: () async {
                   if (widget.onNext != null) {
-                    widget.onNext!();
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => ChooseTemplate()),
+                    );
                   }
                 },
                 style: ElevatedButton.styleFrom(

@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 // Note: The name 'Reference' is a reserved keyword in Dart, so the class for
 // the 'app_references' table is named 'AppReference'.
 
@@ -395,28 +393,6 @@ class Skill {
       'id': id,
       'name': name,
       'proficiency': proficiency,
-    };
-  }
-}
-
-/// Model for the 'signature' table.
-class Signature {
-  int? id;
-  Uint8List? signature; // BLOB is represented as Uint8List
-
-  Signature({this.id, this.signature});
-
-  factory Signature.fromMap(Map<String, dynamic> map) {
-    return Signature(
-      id: map['id'],
-      signature: map['signature'],
-    );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'signature': signature,
     };
   }
 }

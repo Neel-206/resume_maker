@@ -34,10 +34,12 @@ class _EducationState extends State<Education> {
 
   void _loadEducation() async {
     final allRows = await dbHelper.queryAllRows(DatabaseHelper.tableEducation);
-    setState(() {
-      educationList.clear();
-      educationList.addAll(allRows);
-    });
+    if (mounted) {
+      setState(() {
+        educationList.clear();
+        educationList.addAll(allRows);
+      });
+    }
   }
 
   void _addEducation() async {

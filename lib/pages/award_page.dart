@@ -43,10 +43,12 @@ class _awardpageState extends State<awardpage> {
 
   void _loadAwards() async {
     final allRows = await dbHelper.queryAllRows(DatabaseHelper.tableAwards);
-    setState(() {
-      awards.clear();
-      awards.addAll(allRows);
-    });
+    if (mounted) {
+      setState(() {
+        awards.clear();
+        awards.addAll(allRows);
+      });
+    }
   }
 
   void _addAward() async {

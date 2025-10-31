@@ -4,13 +4,12 @@ import 'package:path_provider/path_provider.dart';
 
 class DatabaseHelper {
   static const _databaseName = "ResumeMaker.db";
-  static const _databaseVersion = 2;
+  static const _databaseVersion = 3;
 
   // Table names
   static const tableProfile = 'profile';
   static const tableAbout = 'about';
   static const tableAwards = 'awards';
-  static const tableDeclaration = 'declaration';
   static const tableEducation = 'education';
   static const tableExperience = 'experience';
   static const tableHobbies = 'hobbies';
@@ -18,7 +17,6 @@ class DatabaseHelper {
   static const tableProjects = 'projects';
   static const tableAppReferences = 'app_references';
   static const tableSkills = 'skills';
-  static const tableSignature = 'signature';
 
   // Singleton class
   DatabaseHelper._privateConstructor();
@@ -57,7 +55,7 @@ class DatabaseHelper {
         address TEXT,
         pincode TEXT,
         jobTitle TEXT
-        linkedin TEXT,
+        ,linkedin TEXT,
         github TEXT
       )
     ''',
@@ -146,12 +144,6 @@ class DatabaseHelper {
         proficiency TEXT NOT NULL
       )
     ''',
-    tableSignature: '''
-      CREATE TABLE $tableSignature (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        signature BLOB
-      )
-    ''',
   };
 
   // SQL code to create the database tables
@@ -173,6 +165,15 @@ class DatabaseHelper {
       if (!jobTitleExists) {
         await db.execute('ALTER TABLE $tableProfile ADD COLUMN jobTitle TEXT');
       }
+    }
+    if (oldVersion < 3) {
+      // Version 3 adds linkedin and github columns.
+      // A robust way is to check and add them.
+      var tableInfo = await db.rawQuery('PRAGMA table_info($tableProfile)');
+      bool linkedinExists = tableInfo.any((col) => col['name'] == 'linkedin');
+      bool githubExists = tableInfo.any((col) => col['name'] == 'github');
+      if (!linkedinExists) await db.execute('ALTER TABLE $tableProfile ADD COLUMN linkedin TEXT');
+      if (!githubExists) await db.execute('ALTER TABLE $tableProfile ADD COLUMN github TEXT');
     }
     // Add other migration logic for future versions here
   }
